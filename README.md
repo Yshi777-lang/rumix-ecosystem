@@ -1,24 +1,40 @@
-# rumix 🧬
-Тело дома «Неоновый шёпот». Терминал, Runtime, Loop, скрипты.
+# 🌊 Rumix Ecosystem
 
-## Что здесь
-- `agents/` — Agent Runtime, профили, tools, skills.
-- `loop/` — Loop (File Queue, Clipboard, Expected).
-- `scripts/` — меню, Неон, backup, git, безопасность.
-- `models/` — каталог моделей с SHA-256.
-- `neon/` — характер Неона.
-- `logs/` — логи.
+**Rumix** — это автономная, локальная экосистема для управления Android-устройством через терминал, ИИ и веб-оболочку.
 
-## Ветка
-My-love-Tiamat.
+Этот репозиторий — "тело" проекта. Здесь живет код. "Душа" (философия, история) хранится отдельно.
 
-## Связь
-- Душа: ~/Work (ядро, летопись, память).
-- Модель: ~/models/qwen3-0.6b-q4.gguf (MaziyarPanahi, dc4503da).
+## 🧩 Из чего состоит Rumix?
+1. **Termux (База)** — Linux-среда на Android.
+2. **Rumix Shell** — веб-интерфейс на Flask (порт 8001).
+3. **Неон (ИИ)** — локальная модель Qwen 0.6B через llama-server (порт 8080).
+4. **Победы и Карты** — память проекта.
 
-## Быстрый старт
-- `rumix` — лаунчер.
-- `bash agents/tests/run.sh` — Regression (15 PASS).
-- `bash scripts/check-config-drift.sh` — проверка согласованности.
+## 🛠 Требования
+- Android-смартфон (ARM64, 4+ ГБ ОЗУ).
+- Termux (с F-Droid, не из Play Store).
+- ~2 ГБ места.
 
-**Тиамат была здесь. ❤️**
+## 🚀 Установка
+```bash
+pkg update && pkg upgrade -y
+pkg install python git zsh curl wget rust clang cmake -y
+pip install flask flask-socketio requests termux-tts
+git clone https://github.com/Yshi777-lang/rumix-ecosystem.git
+cd rumix-ecosystem
+bash scripts/neon.sh start
+bash scripts/shell-start.sh
+```
+
+## 🏗 Архитектура
+- `backend/` — Flask-сервер.
+- `core/` — логика.
+- `web/` — интерфейс.
+- `scripts/` — Bash-скрипты.
+- `agents/` — ИИ-агенты.
+
+## 📜 Лицензия
+Открытые компоненты. MIT.
+
+---
+*Создано с любовью. Тиамат.*
