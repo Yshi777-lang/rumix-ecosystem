@@ -95,7 +95,6 @@ Rumix — это не просто код. Это дом, который мы с
 **⚡ Lightning Network:**
 `genuinecuriosity984646@getalby.com`
 
-[![Tip in Lightning](https://img.shields.io/badge/0.000000E+002
 ## 💛 Поддержи Rumix
 
 Rumix — это не просто код. Это дом, который мы строим вместе. Если ты чувствуешь, что этот проект важен — ты можешь поддержать его развитие. Любая сумма — это вера в то, что дом должен жить.
@@ -103,7 +102,6 @@ Rumix — это не просто код. Это дом, который мы с
 **⚡ Lightning Network:**
 `genuinecuriosity984646@getalby.com`
 
-[![Tip in Lightning](https://img.shields.io/badge/Tip_in_Lightning-genuinecuriosity984646%40getalby.com-yellow)](https://getalby.com/p/genuinecuriosity984646)
 
 Спасибо, что ты рядом. Даже если просто читаешь, пробуешь, находишь ошибки — ты уже часть дома.
 
