@@ -114,3 +114,12 @@ Rumix — это не просто код. Это дом, который мы с
 **[Перевести на ЮMoney](https://yoomoney.ru/to/4100119453419830)**
 
 Спасибо за поддержку! 💛
+
+## 📸 Скриншоты
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;">
+  <img src="docs/screenshots/Screenshot_20261024-181122.png" width="200" alt="Shell">
+  <img src="docs/screenshots/Screenshot_20261024-211857.png" width="200" alt="Файлы">
+  <img src="docs/screenshots/Screenshot_20261024-214413.png" width="200" alt="Перевод">
+  <img src="docs/screenshots/Screenshot_20261024-215554.png" width="200" alt="Режимы">
+</div>
