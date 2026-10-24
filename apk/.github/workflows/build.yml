@@ -1,0 +1,49 @@
+name: Build APK
+on:
+  push:
+    branches: [ My-love-Tiamat ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: apk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Accept Android SDK licenses
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew || true
+
+      - name: Build with Gradle
+        run: ./gradlew assembleDebug 2>&1 | tee gradle.log || echo "Gradle failed"
+
+      - name: Show errors
+        if: failure()
+        run: grep -E "error" gradle.log | head -30 || tail -30 gradle.log
+
+      - name: Show APK
+        run: find app/build -name "*.apk" 2>/dev/null || echo "NO APK FOUND"
+
+      - name: Create Release
+        if: success()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Rumix build ${{ github.run_number }}
+          files: apk/app/build/outputs/apk/debug/*.apk
+          draft: false
+          prerelease: true

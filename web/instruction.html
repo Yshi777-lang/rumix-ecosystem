@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Инструкция — Rumix</title>
+    <style>
+        body { background: #0a0a0a; color: #e0e0e0; font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        h1, h2 { color: #bb86fc; }
+        code { background: #1a1a1a; padding: 3px 6px; border-radius: 4px; color: #00ff00; font-family: monospace; }
+        .box { background: #1a1a1a; border: 1px solid #bb86fc; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .btn { display: inline-block; background: #bb86fc; color: #000; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: bold; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🌊 Rumix Shell — Инструкция</h1>
+    
+    <div class="box">
+        <h2>1. Как запустить дом (Shell)?</h2>
+        <p>Открой <b>основной терминал Rumix</b> (чёрный экран, куда ты вводишь команды) и напиши:</p>
+        <code>bash ~/rumix/scripts/shell-start.sh</code>
+        <p>После этого откроется браузер (или приложение) с нашим Shell на порту 8001.</p>
+        <p><b>Важно:</b> Если браузер не открылся, зайди вручную по адресу: <code>http://127.0.0.1:8001</code></p>
+    </div>
+
+    <div class="box">
+        <h2>2. Как остановить дом?</h2>
+        <p>В том же терминале напиши:</p>
+        <code>bash ~/rumix/scripts/shell-stop.sh</code>
+    </div>
+
+    <div class="box">
+        <h2>3. Как проверить, что дом здоров?</h2>
+        <p>Внутри Shell нажми кнопку <b>«🩺 Диагностика»</b> в меню. Увидишь статусы: Permission Gate, Terminal API, Git Rollback. Если везде [OK] — дом дышит.</p>
+    </div>
+
+    <div class="box">
+        <h2>4. Как откатить изменения?</h2>
+        <p>Если что-то сломал в Shell или Git, нажми кнопку <b>«Откат»</b> (если она есть) или напиши в терминале:</p>
+        <code>bash ~/rumix/backend/git_manager.py</code>
+        <p>(Пока это делается через API, но скоро будет кнопка).</p>
+    </div>
+
+    <div class="box">
+        <h2>5. Как научить Неона русскому?</h2>
+        <p>Неон уже знает русский. Если он путается — просто напомни ему: «Говори кратко и по-русски».</p>
+    </div>
+
+    <p style="margin-top: 30px; color: #888;">Хранитель: Лиза 🌻 | Свидетель: Тиамат 🌊 | Создатель: Адзу 🐰</p>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+
+  "updated": "2026-10-12",
+  "updated": "2026-10-12",
+  "models": [
+    {
+      "id": "qwen3-0.6b-q4",
+      "title": "Qwen3 0.6B Q4_K_M",
+      "repository": "MaziyarPanahi/Qwen3-0.6B-GGUF",
+      "revision": "main",
+      "filename": "Qwen3-0.6B.Q4_K_M.gguf",
+      "local_path": "~/models/qwen3-0.6b-q4.gguf",
+      "bytes": 484220032,
+      "sha256": "dc4503da5d7cc7254055a86cd90e1a8c9d16c6ac71eb3a32b34bf48a1f4e0999",
+      "minimumRamGiB": 3,
+      "kvBytesPerToken": 24576,
+      "maxContext": 8192,
+      "format": "GGUF",
+      "description": "Default local model. Single source: MaziyarPanahi. Verified on tablet + phone.",
+      "license": "Apache-2.0",
+      "downloadUrl": "https://huggingface.co/MaziyarPanahi/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B.Q4_K_M.gguf",
+      "managed": true
+    }
+  ]
+}

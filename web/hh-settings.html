@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки HH</title>
+    <style>
+        body { background: #0a0a0a; color: #e0e0e0; font-family: sans-serif; padding: 20px; }
+        h1 { color: #bb86fc; }
+        label { display: block; margin-top: 15px; color: #aaa; }
+        input { width: 100%; padding: 10px; margin-top: 5px; background: #1a1a1a; color: #fff; border: 1px solid #bb86fc; border-radius: 5px; box-sizing: border-box; }
+        button { margin-top: 20px; padding: 12px 24px; background: #bb86fc; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .msg { margin-top: 15px; color: #00ff00; }
+        .error { color: #ff5555; }
+        .back { display: inline-block; margin-bottom: 20px; color: #bb86fc; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <a href="/" class="back">← Назад в Shell</a>
+    <h1>Настройки HH (автоотклики)</h1>
+    
+    <form id="hh-form">
+        <label>Telegram Bot Token (@BotFather)</label>
+        <input name="TG_BOT_TOKEN" placeholder="123456:ABC-DEF...">
+        
+        <label>Telegram Admin Chat ID (@userinfobot)</label>
+        <input name="TG_ADMIN_CHAT_ID" placeholder="123456789">
+        
+        <label>HH Login (почта/телефон)</label>
+        <input name="HH_LOGIN" placeholder="email@example.com">
+        
+        <label>HH Password</label>
+        <input name="HH_PASSWORD" type="password" placeholder="пароль">
+        
+        <label>HH Resume ID (авто)</label>
+        <input name="HH_RESUME_ID" placeholder="оставь пустым">
+        
+        <label>Желаемая должность</label>
+        <input name="DESIRED_POSITION" value="Python-разработчик">
+        
+        <label>Зарплата от</label>
+        <input name="DESIRED_SALARY_MIN" value="100000">
+        
+        <label>Зарплата до</label>
+        <input name="DESIRED_SALARY_MAX" value="300000">
+        
+        <label>Поисковые запросы (через запятую)</label>
+        <input name="SEARCH_QUERIES_RAW" value="python разработчик, backend разработчик">
+        
+        <label>Сопроводительное письмо</label>
+        <input name="COVER_LETTER" value="Добрый день! Заинтересовала ваша вакансия...">
+        
+        <button type="submit">Сохранить</button>
+    </form>
+    <div id="msg" class="msg"></div>
+
+    <script>
+        document.getElementById('hh-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const form = new FormData(e.target);
+            const data = Object.fromEntries(form.entries());
+            const msg = document.getElementById('msg');
+            msg.textContent = 'Сохранение...';
+            msg.className = 'msg';
+            
+            try {
+                const r = await fetch('/api/hh/settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const d = await r.json();
+                if (d.ok) {
+                    msg.textContent = '✅ Сохранено!';
+                    msg.className = 'msg';
+                } else {
+                    msg.textContent = '❌ Ошибка: ' + (d.error || 'неизвестно');
+                    msg.className = 'msg error';
+                }
+            } catch (err) {
+                msg.textContent = '❌ Ошибка связи: ' + err.message;
+                msg.className = 'msg error';
+            }
+        };
+    </script>
+</body>
+</html>

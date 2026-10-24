@@ -1,0 +1,37 @@
+backend/socket_app.py
+scripts/run-all.sh
+scripts/start-and-open.sh
+web/add_confirm.py
+web/add_confirm2.py
+web/add_remove_pin.py
+web/fix_ttyd_ws.py
+web/inject_button.py
+web/inject_diagnostic.py
+web/inject_selftest_handler.py
+web/inject_ttyd.py
+web/vendor/
+
+# Кеши
+__pycache__/
+*.pyc
+
+# Логи
+logs/
+*.log
+
+# Бэкапы
+*.bak
+
+# Временные файлы
+agents/evidence.jsonl
+loop/cache.jsonl
+loop/state.json
+loop/in/
+loop/done/
+loop/archive/
+backend/add_history.py
+backend/integrate_memory.py
+web/add_sync_btn.py
+web/add_sync_menu.py
+web/add_sync_modal.py
+web/add_ws_buttons.py
