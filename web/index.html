@@ -127,6 +127,8 @@ header {
 <button onclick="loadView('status')" id="btn-status">📊 Статус</button>
 <button onclick="loadView('logs')" id="btn-logs">📜 Лог</button>
             <button onclick="loadView('settings')" id="btn-settings">⚙ Настройки</button>
+<button onclick="openBrowser()" id="btn-browser">🌐 Браузер</button>
+<button onclick="openAdb()" id="btn-adb">📱 ADB</button>
 </div>
 <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:10px 16px">
 <div class="nav-group">
@@ -259,6 +261,47 @@ header {
 </main>
 <footer>Rumix Shell v0.1 — Неоновый шёпот</footer>
 <script>
+function openAdb(){
+  document.getElementById('adb-modal').style.display = 'flex';
+}
+async function adbConnect(){
+  const host = document.getElementById('adb-host').value;
+  const port = document.getElementById('adb-port').value;
+  try {
+    const r = await fetch('/api/adb/connect', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({host, port})});
+    const d = await r.json();
+    document.getElementById('adb-status').textContent = d.ok ? ('Подключено: ' + d.out) : ('Ошибка: ' + d.err);
+  } catch(e) { alert('Ошибка: ' + e); }
+}
+async function adbLoadApps(){
+  try {
+    const r = await fetch('/api/adb/apps');
+    const d = await r.json();
+    const list = document.getElementById('adb-apps');
+    if (d.error) { list.textContent = 'Ошибка: ' + d.error; return; }
+    list.innerHTML = (d.apps || []).map(p => '<div>' + p + '</div>').join('');
+  } catch(e) { alert('Ошибка: ' + e); }
+}
+async function adbShell(){
+  const cmd = document.getElementById('adb-shell').value;
+  if (!cmd) return;
+  try {
+    const r = await fetch('/api/adb/shell', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({cmd})});
+    const d = await r.json();
+    document.getElementById('adb-output').textContent = d.out || d.err || 'Пусто';
+  } catch(e) { alert('Ошибка: ' + e); }
+}
+function openBrowser(){
+  const m = document.getElementById('browser-modal');
+  if (m) { m.style.display = 'flex'; document.getElementById('browser-url').focus(); }
+}
+function loadBrowserUrl(){
+  const url = document.getElementById('browser-url').value.trim();
+  if (!url) return;
+  const full = url.startsWith('http') ? url : ('https://' + url);
+  const frame = document.getElementById('browser-frame');
+  if (frame) frame.src = full;
+}
 function loadView(v){document.querySelectorAll('[id^=view-]').forEach(e=>e.style.display='none');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById('view-'+v).style.display='block';document.getElementById('btn-'+v).classList.add('active');if(v==='status')fetchStatus();if(v==='logs')fetchLogs();if(v==='files')fetchFiles();if(v==='menu')fetchMenu();if(v==='instruction')fetchInstruction();if(v==='projects')fetchProjects()}
 async function fetchStatus(){try{const r=await fetch('/api/status');const d=await r.json();document.getElementById('stat-regression').innerText=d.regression||'N/A';document.getElementById('stat-drift').innerText=d.drift||'N/A';document.getElementById('stat-agents').innerText=d.agents||'N/A';document.getElementById('stat-loop').innerText=d.loop||'N/A';document.getElementById('status-dot').className=d.ok?'status-dot ok':'status-dot'}catch(e){document.getElementById('status-dot').className='status-dot'}}
 async function fetchLogs(){try{const r=await fetch('/api/logs');const d=await r.json();document.getElementById('log-area').innerText=d.lines.join('\n')}catch(e){}}
@@ -914,6 +957,37 @@ async function syncAction(action) {
     </div>
     <pre id="file-viewer-body" style="white-space:pre-wrap;word-break:break-word;max-height:70vh;overflow:auto;color:#eee;font-size:13px;margin:0"></pre>
   </div>
+</div>
+
+<div id="browser-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;padding:12px;flex-direction:column">
+  <div style="display:flex;gap:6px;margin-bottom:8px">
+    <input id="browser-url" placeholder="https://..." style="flex:1;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px;font-size:14px" onkeypress="if(event.key==='Enter')loadBrowserUrl()">
+    <button onclick="loadBrowserUrl()" style="background:#7c3aed;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer">→</button>
+    <button onclick="document.getElementById('browser-modal').style.display='none'" style="background:#4c1d95;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer">✖</button>
+  </div>
+  <iframe id="browser-frame" style="flex:1;border:1px solid #333;border-radius:8px;background:#fff"></iframe>
+  <div id="browser-note" style="color:#888;font-size:12px;margin-top:6px;text-align:center">Некоторые сайты блокируют iframe. Если пусто — открой в новой вкладке.</div>
+</div>
+
+<div id="adb-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;padding:12px;flex-direction:column;overflow:auto">
+  <h2 style="color:#a78bfa;margin:0 0 10px 0">📱 ADB Управление</h2>
+  <div style="display:flex;gap:6px;margin-bottom:8px">
+    <input id="adb-host" value="127.0.0.1" placeholder="Host" style="width:120px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:6px;border-radius:6px">
+    <input id="adb-port" value="5555" placeholder="Port" style="width:70px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:6px;border-radius:6px">
+    <button onclick="adbConnect()" style="background:#7c3aed;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">Подключить</button>
+    <button onclick="document.getElementById('adb-modal').style.display='none'" style="background:#4c1d95;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;margin-left:auto">✖</button>
+  </div>
+  <div id="adb-status" style="color:#888;font-size:13px;margin-bottom:8px">Не подключено</div>
+  <div style="display:flex;gap:6px;margin-bottom:8px">
+    <button onclick="adbLoadApps()" style="background:#0891b2;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">Список приложений</button>
+  </div>
+  <div id="adb-apps" style="max-height:40vh;overflow-y:auto;background:#1a1a2e;border:1px solid #333;border-radius:8px;padding:6px;font-size:13px;color:#eee"></div>
+  <h3 style="color:#a78bfa;margin:12px 0 6px 0">Shell</h3>
+  <div style="display:flex;gap:6px">
+    <input id="adb-shell" placeholder="pm list packages..." style="flex:1;background:#1a1a2e;color:#eee;border:1px solid #444;padding:6px;border-radius:6px">
+    <button onclick="adbShell()" style="background:#7c3aed;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">Выполнить</button>
+  </div>
+  <pre id="adb-output" style="background:#0f0a1e;color:#a78bfa;padding:8px;border-radius:6px;margin-top:8px;max-height:30vh;overflow:auto;font-size:12px;white-space:pre-wrap"></pre>
 </div>
 </body>
 </html>

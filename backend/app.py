@@ -117,6 +117,63 @@ def api_translate():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/adb/connect', methods=['POST'])
+def adb_connect():
+    try:
+        from core.adb_manager import AdbManager
+        data = request.get_json() or {}
+        host = data.get('host', '127.0.0.1')
+        port = int(data.get('port', 5555))
+        res = AdbManager().connect(host, port)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/adb/apps', methods=['GET'])
+def adb_apps():
+    try:
+        from core.adb_manager import AdbManager
+        apps = AdbManager().list_apps()
+        return jsonify({'apps': apps})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/adb/shell', methods=['POST'])
+def adb_shell():
+    try:
+        from core.adb_manager import AdbManager
+        data = request.get_json() or {}
+        cmd = data.get('cmd')
+        if not cmd: return jsonify({'error': 'cmd required'}), 400
+        res = AdbManager().shell(cmd)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/adb/install', methods=['POST'])
+def adb_install():
+    try:
+        from core.adb_manager import AdbManager
+        data = request.get_json() or {}
+        path = data.get('path')
+        if not path: return jsonify({'error': 'path required'}), 400
+        res = AdbManager().install_apk(path)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/adb/action', methods=['POST'])
+def adb_action():
+    try:
+        from core.adb_manager import AdbManager
+        data = request.get_json() or {}
+        pkg, action = data.get('pkg'), data.get('action')
+        if not pkg or not action: return jsonify({'error': 'pkg and action required'}), 400
+        res = AdbManager().action_app(pkg, action)
+        return jsonify(res)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/mode', methods=['GET', 'POST'])
 def api_mode():
     try:
