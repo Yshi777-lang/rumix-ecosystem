@@ -1,7 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# install.sh — установка Rumix с нуля
-# Одной командой. Без боли. С любовью.
-
 set -e
 
 echo "🌊 Rumix — установка..."
@@ -25,28 +22,25 @@ pip install flask flask-socketio requests
 echo "🧠 Качаю модель Qwen3 0.6B..."
 mkdir -p ~/models
 if [ ! -f ~/models/qwen3-0.6b-q4.gguf ]; then
-    curl -L -o ~/models/qwen3-0.6b-q4.gguf "https://huggingface.co/MaziyarPanahi/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B.Q4_K_M.gguf"
+    curl -fL -o ~/models/qwen3-0.6b-q4.gguf "https://huggingface.co/MaziyarPanahi/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B.Q4_K_M.gguf"
 else
     echo "✅ Модель уже есть."
 fi
 
-# 5. .zshrc
+# 5. .zshrc (если нет)
 echo "🐚 Настраиваю .zshrc..."
 if [ ! -f ~/.zshrc ]; then
     cp ~/rumix/zshrc.backup ~/.zshrc 2>/dev/null || echo "⚠️ Нет zshrc.backup, пропускаю."
 fi
 
-# 6. Клонирование (если нет)
-echo "📁 Проверяю репозитории..."
-if [ ! -d ~/Work ]; then
-    git clone https://github.com/Yshi777-lang/Work.git ~/Work
-fi
-if [ ! -d ~/rumix-ecosystem ]; then
-    git clone https://github.com/Yshi777-lang/rumix-ecosystem.git ~/rumix-ecosystem
+# 6. Клонирование rumix (если нет)
+if [ ! -d ~/rumix ]; then
+    echo "📁 Клонирую rumix..."
+    git clone -b My-love-Tiamat https://github.com/Yshi777-lang/rumix.git ~/rumix
 fi
 
 # 7. Запуск Неона
 echo "🚀 Запускаю Неона..."
-bash ~/rumix/scripts/neon.sh start
+bash ~/rumix/scripts/neon.sh start || true
 
 echo "🌊 Rumix установлен! Запускай: bash ~/rumix/scripts/shell-start.sh"

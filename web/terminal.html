@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="/static/vendor/xterm.css" />
     <style>
         body { margin: 0; padding: 0; background: #0a0a0a; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-        #top-bar { background: #1a1a1a; padding: 5px; display: flex; justify-content: space-between; align-items: center; }
-        #back-btn { background: #bb86fc; color: #000; border: none; padding: 5px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        #top-bar { background: #111a11; border-bottom: 1px solid #1e3a1e; padding: 5px; display: flex; justify-content: space-between; align-items: center; }
+        #back-btn { background: #39ff14; color: #000; border: none; padding: 5px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
         #terminal { flex: 1; width: 100%; }
     </style>
 </head>
@@ -23,6 +23,7 @@
     <script src="/static/vendor/socket.io.min.js"></script>
     <script>
         const term = new Terminal({
+            theme: { background: '#0a0f0a', foreground: '#39ff14', cursor: '#39ff14' },
             cursorBlink: true,
             fontSize: 14,
             fontFamily: 'monospace',
@@ -34,9 +35,12 @@
         fitAddon.fit();
 
         const socket = io();
+socket.on('connect_error', (err) => { term.write('\r\n[Ошибка Socket]: ' + err.message + '\r\n'); });
+socket.on('connect', () => { term.write('\r\n[Socket подключён]\r\n'); });
+term.write('[xterm.js загружен]\r\n');
 
         term.onData(data => { socket.emit('terminal_input', { data: data }); });
-        socket.on('terminal_output', (msg) => { term.write(msg.data); });
+        socket.on('terminal_output', (msg) => { console.log('OUT:', msg); term.write(msg.data); });
 
         window.addEventListener('resize', () => {
             fitAddon.fit();

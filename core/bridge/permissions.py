@@ -32,24 +32,30 @@ DANGEROUS_PATTERNS = [
 ]
 
 def classify_command(cmd: str) -> str:
-    """Определяет уровень риска для команды."""
+    """Определяет уровень риска. Блокирует ; && || | $ ( ) и обратные кавычки."""
     cmd = cmd.strip()
-    
+
+    # 0. Опасные символы (цепочки, подстановки)
+    dangerous_chars = [';', '&', '|', '$', '(', ')', '`']
+    for ch in dangerous_chars:
+        if ch in cmd:
+            return "BLOCKED"
+
     # 1. Проверка на опасные паттерны
     for pattern in DANGEROUS_PATTERNS:
         if re.search(pattern, cmd):
             return "BLOCKED"
-    
-    # 2. Проверка whitelist
-    for allowed in EXEC_WHITELIST:
-        if cmd == allowed or cmd.startswith(allowed + " "):
-            return PermissionLevel.READ if allowed in ["ls", "cat", "pwd", "echo", "grep", "wc"] else PermissionLevel.EXEC
 
-    # 3. Если не в whitelist, но похоже на чтение
-    if cmd.split()[0] in ["ls", "cat", "head", "tail", "less", "grep", "wc"]:
+    # 2. Только одно слово (без пробелов) — проверяем whitelist
+    parts = cmd.split()
+    if len(parts) == 0:
+        return PermissionLevel.EXEC
+
+    base = parts[0]
+    if base in ["ls", "cat", "pwd", "echo", "grep", "wc", "head", "tail", "less"]:
         return PermissionLevel.READ
-        
-    # 4. Всё остальное — EXEC (требует спроса)
+
+    # 3. Всё остальное — EXEC (требует спроса)
     return PermissionLevel.EXEC
 
 def check_file_access(path: str, mode: str) -> bool:

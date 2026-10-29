@@ -5,12 +5,12 @@
 case "$1" in
     start)
         # Добавляем cron-задание, если его нет
-        (crontab -l 2>/dev/null | grep -v "sync-work.sh"; echo "*/15 * * * * bash ~/sync-work.sh") | crontab -
+        (crontab -l 2>/dev/null | grep -v "sync-all-bg.sh"; echo "*/15 * * * * bash ~/rumix/scripts/sync-all-bg.sh") | crontab -
         echo "✅ Синхронизация запущена (каждые 15 минут)."
         ;;
     stop)
         # Удаляем cron-задание
-        (crontab -l 2>/dev/null | grep -v "sync-work.sh") | crontab -
+        (crontab -l 2>/dev/null | grep -v "sync-all-bg.sh") | crontab -
         echo "⏹ Синхронизация остановлена."
         ;;
     interval)
@@ -19,19 +19,19 @@ case "$1" in
             exit 1
         fi
         # Меняем интервал
-        (crontab -l 2>/dev/null | grep -v "sync-work.sh"; echo "*/$2 * * * * bash ~/sync-work.sh") | crontab -
+        (crontab -l 2>/dev/null | grep -v "sync-all-bg.sh"; echo "*/$2 * * * * bash ~/rumix/scripts/sync-all-bg.sh") | crontab -
         echo "✅ Интервал изменён на $2 минут."
         ;;
     status)
-        if crontab -l 2>/dev/null | grep -q "sync-work.sh"; then
-            interval=$(crontab -l 2>/dev/null | grep "sync-work.sh" | awk '{print $1}' | sed 's|*/||;s| ||g')
+        if crontab -l 2>/dev/null | grep -q "sync-all-bg.sh"; then
+            interval=$(crontab -l 2>/dev/null | grep "sync-all-bg.sh" | awk '{print $1}' | sed 's|*/||;s| ||g')
             echo "🔄 Синхронизация работает каждые $interval минут."
         else
             echo "⏹ Синхронизация остановлена."
         fi
         ;;
     now)
-        bash ~/sync-work.sh
+        bash ~/rumix/scripts/sync-all-bg.sh
         ;;
     *)
         echo "Использование:"

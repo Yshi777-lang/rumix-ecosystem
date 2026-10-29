@@ -39,6 +39,7 @@ while true; do
         "🗂  Файлы" \
         "🐙 GitHub" \
         "⚙️  Настройки и память" \
+        "🗺️  Карта дома" \
         "📖 Инструкция" \
         "🚪 Выход")
 
@@ -88,6 +89,9 @@ while true; do
             ;;
         "⚙️  Настройки и память")
             bash "$HOME/rumix/scripts/settings-menu.sh"
+            ;;
+        "🗺️  Карта дома")
+            bash "$HOME/rumix/scripts/show-map.sh"
             ;;
         "📖 Инструкция")
             clear

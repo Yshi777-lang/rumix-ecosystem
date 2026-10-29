@@ -1,11 +1,12 @@
-from flask import Flask, send_from_directory, jsonify, request
+from flask import Flask, send_from_directory, jsonify, request, session
 import subprocess
 import json
 import os
 
 app = Flask(__name__)
+app.secret_key = "rumix_secret_key_2026"
 from flask_socketio import SocketIO
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
+socketio = SocketIO(app, cors_allowed_origins=["http://127.0.0.1:8001", "http://localhost:8001"], async_mode="threading")
 
 # Ядро файлового менеджера (порт из Twig)
 import sys as _sys
@@ -19,6 +20,10 @@ except Exception as _e:
     print("FS core init failed:", _e)
 
 
+@app.route('/maigret')
+def maigret_page():
+    return send_from_directory('../web', 'maigret.html')
+
 @app.route('/terminal')
 def terminal_page():
     return send_from_directory('../web', 'terminal.html')
@@ -26,6 +31,18 @@ def terminal_page():
 @app.route('/')
 def index():
     return send_from_directory('../web', 'index.html')
+
+
+@app.before_request
+def check_auth():
+    # Разрешаем без авторизации только вход и статус
+    if request.path.startswith('/static/') or request.path in ['/api/pin/check', '/api/pin/status', '/api/status', '/', '/terminal']:
+        return
+    # Если PIN не установлен — пускаем всех (первый запуск)
+    if not os.path.exists(PIN_FILE):
+        return
+    # Всё остальное — только с сессией
+    return  # проверка отключена (временно)
 
 @app.route('/api/status')
 def status():
@@ -72,6 +89,11 @@ def files():
         path = request.args.get('path') or os.path.expanduser('~')
         scheme = request.args.get('scheme') or 'file'
         host = request.args.get('host')
+        # Проверка file_gate
+        from core.bridge.file_gate import check_file
+        gate = check_file(path, 'read')
+        if not gate['allowed']:
+            return jsonify({'error': gate['message']}), 403
 
         if scheme == 'zip':
             if not host: return jsonify({'error': 'host required for zip'}), 400
@@ -174,6 +196,22 @@ def adb_action():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+@app.route('/api/search', methods=['POST'])
+def api_search():
+    try:
+        from core.maigret import search_username
+        data = request.get_json() or {}
+        username = data.get('username', '').strip()
+        if not username:
+            return jsonify({'error': 'username required'}), 400
+        no_recursion = data.get('no_recursion', True)
+        no_extracting = data.get('no_extracting', True)
+        top_sites = int(data.get('top_sites', 0))
+        result = search_username(username, no_recursion=no_recursion, no_extracting=no_extracting, top_sites=top_sites)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 @app.route('/api/mode', methods=['GET', 'POST'])
 def api_mode():
     try:
@@ -224,11 +262,11 @@ def files_extract():
         count = 0
         if scheme == 'zip':
             with zipfile.ZipFile(str(hp), 'r') as z:
-                z.extractall(str(dp))
+                z.extractall(str(dp), members=[m for m in z.namelist() if not m.startswith("/") and ".." not in m])
                 count = len(z.namelist())
         elif scheme == 'tar':
             with tarfile.open(str(hp), 'r:*') as t:
-                t.extractall(str(dp))
+                t.extractall(str(dp), members=[m for m in t.getmembers() if not m.name.startswith("/") and ".." not in m.name])
                 count = len(t.getnames())
         else:
             return jsonify({'error': 'Unsupported scheme: ' + scheme}), 400
@@ -288,6 +326,9 @@ def files_read():
         path = request.args.get('path')
         if not path:
             return jsonify({'error': 'path required'}), 400
+        gate = check_file(path, 'read')
+        if not gate['allowed']:
+            return jsonify({'error': gate['message']}), 403
         scheme = request.args.get('scheme') or 'file'
         host = request.args.get('host')
         from core.fs.fs_zip import ZipFileSystem
@@ -370,9 +411,11 @@ def pin_check():
         with open(PIN_FILE, 'r') as f:
             stored = f.read().strip()
     except FileNotFoundError:
+        session['logged_in'] = True
         return jsonify({'ok': True, 'note': 'PIN не установлен'})
     provided = hashlib.sha256(pin.encode()).hexdigest()
     if provided == stored:
+        session['logged_in'] = True
         return jsonify({'ok': True})
     return jsonify({'ok': False, 'error': 'Неверный PIN'}), 401
 
@@ -515,11 +558,11 @@ from web.terminal_api import run_command
 def api_terminal():
     data = request.get_json()
     cmd = data.get('cmd', '')
-    consent = data.get('consent', False)
+    # consent больше не доверяем клиенту (безопасность)
     if not cmd:
         return jsonify({'status': 'ERROR', 'message': 'Пустая команда.'}), 400
-
-    result = run_command(cmd, user_consent=consent)
+    # Разрешаем только READ (без спроса), остальное — через AskUser внутри run_command
+    result = run_command(cmd, user_consent=False)
     return jsonify(result)
 
 
@@ -564,10 +607,11 @@ from delegates.menu_delegate import menu_bp
 app.register_blueprint(menu_bp)
 
 from delegates.chat_delegate import chat_bp
+from delegates.terminal_ws import register_terminal_ws
 app.register_blueprint(chat_bp)
 
-from delegates.terminal_ws import register_terminal_ws
-register_terminal_ws(socketio)
+# terminal_ws removed (security)
+# register_terminal_ws(socketio) — временно отключено (pty)
 
 
 # === Синхронизация (GitHub) ===

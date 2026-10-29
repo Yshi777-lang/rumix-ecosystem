@@ -4,7 +4,7 @@
 
 # Модель: из ~/.neon_model или по умолчанию
 MODEL_FILE="$HOME/.neon_model"
-DEFAULT_MODEL="$HOME/models/qwen3-0.6b-q4.gguf"
+DEFAULT_MODEL="$HOME/models/qwen2.5-1.5b-instruct-q4_k_m.gguf"
 if [ -f "$MODEL_FILE" ]; then
     MODEL=$(cat "$MODEL_FILE")
 else
@@ -20,7 +20,7 @@ start() {
     fi
     echo "🚀 Запускаю гномика..."
     termux-wake-lock
-    nohup llama-server -m "$MODEL" -c 8192 -t 8 -b 512 --chat-template-kwargs '{"enable_thinking": false}' --host 127.0.0.1 --port $PORT > "$LOG" 2>&1 &
+    nohup llama-server -m "$MODEL" -c 4096 -t 8 -b 512 --chat-template-kwargs '{"enable_thinking": false}' --host 127.0.0.1 --port $PORT > "$LOG" 2>&1 &
     sleep 5
     if curl -s http://127.0.0.1:$PORT/v1/models > /dev/null 2>&1; then
         echo "✅ Неон жив (PID: $(pgrep -f llama-server | head -1))"

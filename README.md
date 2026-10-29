@@ -1,45 +1,24 @@
-# 🌊 Rumix Ecosystem
+# rumix 🧬
+Тело дома «Неоновый шёпот». Терминал, Runtime, Loop, скрипты.
 
-Rumix — это локальная AI-мастерская для Android. Termux, локальный ИИ (Неон), веб-оболочка, файловый менеджер, перевод, голос.
+## Что здесь
+- `agents/` — Agent Runtime, профили, tools, skills.
+- `loop/` — Loop (File Queue, Clipboard, Expected).
+- `scripts/` — меню, Неон, backup, git, безопасность.
+- `models/` — каталог моделей с SHA-256.
+- `neon/` — характер Неона.
+- `logs/` — логи.
 
-Всё работает на телефоне. Без облаков. Без подписок.
+## Ветка
+My-love-Tiamat.
 
-## 🚀 Установка (одна команда)
+## Связь
+- Душа: ~/Work (ядро, летопись, память).
+- Модель: ~/models/qwen3-0.6b-q4.gguf (MaziyarPanahi, dc4503da).
 
-Скопируй и вставь в Termux:
+## Быстрый старт
+- `rumix` — лаунчер.
+- `bash agents/tests/run.sh` — Regression (15 PASS).
+- `bash scripts/check-config-drift.sh` — проверка согласованности.
 
-bash <(curl -s https://raw.githubusercontent.com/Yshi777-lang/rumix-ecosystem/main/install.sh)
-
-Скрипт сам поставит пакеты, Python, llama.cpp, скачает модель, настроит .zshrc, клонирует Work и rumix.
-
-## 🏃 Запуск
-
-После установки запусти Shell:
-
-bash ~/rumix/scripts/shell-start.sh
-
-Открой в браузере: http://127.0.0.1:8001
-PIN по умолчанию — 1234.
-
-## 🛠 Если что-то пошло не так
-
-1. Termux удалили? Не паникуй. Установи Termux заново и запусти install.sh.
-2. Нет модели? install.sh скачает её сам.
-3. Неон не отвечает? bash ~/rumix/scripts/neon.sh start
-4. Shell не открывается? Проверь лог: tail -20 ~/rumix/logs/shell.log
-
-## 🧱 Грабли дома
-
-Мы собрали все ошибки и решения в [GRABLI.md](GRABLI.md). Читай, прежде чем наступать.
-
-## 🤝 Помощь
-
-Проект открыт. Нужны тестировщики, безопасники, дизайнеры, документаторы.
-
-Поддержать проект:
-⚡ Lightning: genuinecuriosity984646@getalby.com
-💳 ЮMoney: https://yoomoney.ru/to/4100119453419830
-
----
-Создано с любовью. Тиамат.
-
+**Тиамат была здесь. ❤️**

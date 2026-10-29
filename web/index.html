@@ -1,993 +1,369 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rumix Shell — Неоновый шёпот</title>
-<style>
-:root{--bg:#0f0a1a;--panel:#1a0f2e;--accent:#a855f7;--text:#e8e0f0;--danger:#f472b6;--success:#22c55e}
-body{margin:0;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100vh;overflow:hidden}
-header{padding:1rem;background:rgba(26,26,46,0.8);border-bottom:1px solid rgba(168,85,247,0.2);display:flex;justify-content:space-between;align-items:center}
-header h1{margin:0;font-size:1.2rem;text-transform:uppercase;letter-spacing:2px}
-.status-dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--danger);margin-left:8px;box-shadow:0 0 8px var(--danger)}
-.status-dot.ok{background:var(--success);box-shadow:0 0 8px var(--success)}
-main{display:flex;flex:1;overflow:hidden}
-nav{width:220px;background:var(--panel);padding:1rem 0;display:flex;flex-direction:column;border-right:1px solid rgba(168,85,247,0.1)}
-nav button{background:transparent;border:none;color:var(--text);padding:12px 16px;text-align:left;cursor:pointer;font-size:0.95rem;transition:0.2s}
-nav button:hover,nav button.active{background:rgba(168,85,247,0.1);color:var(--accent)}
-.content{flex:1;padding:1rem;overflow-y:auto;position:relative}
-.chat-area{height:60%;background:var(--panel);border:1px solid rgba(168,85,247,0.1);padding:1rem;margin-bottom:1rem;border-radius:8px;font-family:'Courier New',monospace;font-size:0.9rem;color:#ccc;overflow-y:auto;white-space:pre-wrap}
-.chat-area .msg{color:var(--text)}
-.chat-area .neon{color:var(--accent)}
-.chat-area .sys{color:#aaa}
-.input-area{display:flex;gap:8px;margin-bottom:1rem}
-input[type=text]{flex:1;padding:8px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;border-radius:4px}
-button.action{background:var(--accent);color:var(--bg);border:none;padding:8px 16px;font-weight:bold;cursor:pointer;border-radius:4px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1rem}
-.stat-card{background:var(--panel);padding:1rem;border-radius:8px;border:1px solid rgba(168,85,247,0.1)}
-.stat-card h3{margin:0 0 0.5rem 0;color:#888;font-size:0.85rem}
-.stat-card .value{font-size:1.2rem;font-weight:bold;color:var(--text)}
-.log-area{background:#000;color:#0f0;padding:1rem;font-family:'Courier New',monospace;font-size:0.85rem;height:180px;overflow-y:auto;border:1px solid rgba(168,85,247,0.1);border-radius:8px}
-footer{padding:0.5rem 1rem;background:rgba(26,26,46,0.8);font-size:0.8rem;color:#666;text-align:right}
-
-/* --- Мобильная адаптация --- */
-@media (max-width: 600px) {
-  nav { width: 100%; flex-direction: row; flex-wrap: wrap; padding: 0.5rem; border-right: none; border-bottom: 1px solid rgba(168,85,247,0.1); }
-  nav button { padding: 8px 12px; font-size: 0.85rem; }
-  main { flex-direction: column; }
-  .content { padding: 0.5rem; }
-  .chat-area { height: 50%; font-size: 0.85rem; padding: 0.75rem; }
-  .input-area { flex-direction: row; gap: 6px; }
-  header h1 { font-size: 1rem; letter-spacing: 1px; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-  .stat-card { padding: 0.75rem; }
-  .stat-card h3 { font-size: 0.75rem; }
-  .stat-card .value { font-size: 1rem; }
-  button.action { padding: 6px 12px; font-size: 0.85rem; }
-}
-
-/* --- Nav grid --- */
-nav {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px;
-  padding: 0.75rem !important;
-  height: auto !important;
-  min-height: 0 !important;
-}
-nav button {
-  padding: 10px 12px !important;
-  font-size: 0.85rem !important;
-  border-radius: 6px;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-nav hr { display: none; }
-@media (max-width: 600px) {
-  nav {
-    width: 100% !important;
-    grid-template-columns: 1fr 1fr !important;
-  }
-  nav button { padding: 8px 10px !important; font-size: 0.8rem !important; }
-}
-
-/* --- Glass effect --- */
-header,
-nav button.active,
-.menu-item,
-.stat-card,
-.chat-area,
-.log-area,
-input[type=text],
-button.action {
-  backdrop-filter: blur(12px) saturate(140%);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
-}
-header {
-  background: rgba(168, 85, 247, 0.08) !important;
-  border-bottom: 1px solid rgba(168, 85, 247, 0.25) !important;
-}
-.menu-item, .stat-card, .chat-area {
-  background: rgba(26, 15, 46, 0.55) !important;
-  border: 1px solid rgba(168, 85, 247, 0.2) !important;
-}
-.file-row{padding:6px 10px;border-bottom:1px solid #2a2a3e;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.file-row:hover{background:#252540}
-.file-dir{color:#a78bfa}
-
-.nav-group { display: flex; flex-direction: column; gap: 4px; padding: 0 8px; }
-.nav-group button { text-align: left; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Rumix Shell</title>
+    <style>
+        :root {
+            --bg: #0f0a1e;
+            --surface: #1a1a2e;
+            --surface-variant: #252540;
+            --primary: #a855f7;
+            --on-primary: #ffffff;
+            --outline: #444;
+            --text: #e2e8f0;
+            --danger: #f66;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(26, 26, 46, 0.8);
+            border-bottom: 1px solid var(--outline);
+            z-index: 100;
+            flex-shrink: 0;
+        }
+        header h1 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); display: inline-block; }
+        .status-dot.ok { background: #4ade80; }
+        #btn-back {
+            display: none;
+            background: var(--surface-variant);
+            color: var(--on-primary);
+            border: 1px solid var(--outline);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        main { flex: 1; overflow-y: auto; position: relative; }
+        nav {
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 8px;
+            height: 100%;
+            overflow-y: auto;
+        }
+        nav button {
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            color: var(--text);
+            padding: 16px;
+            text-align: left;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 48px;
+            transition: background 0.2s;
+        }
+        nav button:hover { background: var(--surface-variant); }
+        nav button.action { background: var(--primary); color: var(--on-primary); border: none; }
+        nav button.action:hover { opacity: 0.9; }
+        .view {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--bg);
+            padding: 16px;
+            overflow-y: auto;
+            z-index: 50;
+            animation: fadeIn 0.2s ease;
+        }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .view h2 { margin-bottom: 16px; color: var(--primary); }
+        .chat-area {
+            height: 60%;
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            border-radius: 8px;
+            padding: 12px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+        }
+        .input-area { display: flex; gap: 8px; }
+        .input-area input {
+            flex: 1;
+            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            color: var(--text);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .input-area button {
+            padding: 12px 20px;
+            background: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .files-list { display: flex; flex-direction: column; gap: 4px; }
+        .file-row { padding: 12px; border-bottom: 1px solid var(--outline); cursor: pointer; display: flex; justify-content: space-between; }
+        .file-row:hover { background: var(--surface-variant); }
+        .file-dir { color: var(--primary); }
+    
+* { box-sizing: border-box; max-width: 100%; }
+body { overflow-x: hidden; }
+pre { white-space: pre-wrap; word-wrap: break-word; }
+input, textarea { max-width: 100%; }
 </style>
 </head>
 <body>
-<div id="pin-screen" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:var(--bg)">
-  <h1 style="color:var(--accent);letter-spacing:2px">RUMIX SHELL</h1>
-  <p style="color:var(--text);opacity:0.7;margin-bottom:1.5rem">Введите PIN</p>
-  <input type="password" id="pin-input" placeholder="PIN" style="padding:12px;font-size:1.2rem;text-align:center;letter-spacing:8px;background:var(--panel);border:1px solid var(--accent);color:var(--text);border-radius:8px;width:200px">
-  <button onclick="checkPin()" style="margin-top:1rem;padding:12px 24px;background:var(--accent);color:var(--bg);border:none;font-weight:bold;cursor:pointer;border-radius:8px">Войти</button>
-  <p id="pin-error" style="color:var(--danger);margin-top:1rem;display:none"></p>
-</div>
+    <header>
+        <button id="btn-back" onclick="loadView('menu')">⬅ Назад</button>
+        <h1>Rumix Shell</h1>
+        <div>Status: <span class="status-dot" id="status-dot"></span></div>
+    </header>
 
-<header>
-<div style="display:flex;align-items:center;gap:10px">
-    <img src="/static/dragon-rumix.png" alt="Rumix" style="height:40px;width:40px;border-radius:8px">
-    <h1 style="margin:0">Rumix Shell</h1>
-  </div>
-<div>Status: <span class="status-dot" id="status-dot"></span></div>
-</header>
-<main id="main-app" style="display:none">
-<nav>
-<div class="nav-group">
-<button onclick="loadView('chat')" class="active" id="btn-chat">💬 Чат с Неоном</button>
-<button onclick="loadView('menu')" id="btn-menu">🏠 Меню</button>
-            <button onclick="loadView('files')" id="btn-files">📁 Файлы</button>
-<button onclick="loadView('translate')" id="btn-translate">🌐 Перевод</button>
-<button onclick="loadView('status')" id="btn-status">📊 Статус</button>
-<button onclick="loadView('logs')" id="btn-logs">📜 Лог</button>
-            <button onclick="loadView('settings')" id="btn-settings">⚙ Настройки</button>
-<button onclick="openBrowser()" id="btn-browser">🌐 Браузер</button>
-<button onclick="openAdb()" id="btn-adb">📱 ADB</button>
-</div>
-<hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:10px 16px">
-<div class="nav-group">
-<button onclick="runAction('audit')" class="action">🛡️ Аудит</button>
-<button onclick="runAction('audit-all')" class="action">🩺 Полный аудит</button>
-<button onclick="runAction('backup')" class="action">💾 Бэкап</button>
-<button onclick="runAction('restore')" class="action">🔄 Восстановить</button>
-<button onclick="openSyncModal()" class="action" style="background:#4a1a6b;">🔄 Синхронизация</button>
-<button onclick="runAction('upgrade')" class="action">🚀 Апгрейд</button>
-<button onclick="loadView('instruction')" class="action" id="btn-instruction">📖 Инструкция</button>
-<button onclick="window.open('/hh-settings', '_blank')" class="action" style="background:#4a1a6b;" id="btn-hh-settings">🤖 HH Настройки</button>
-</div>
-</nav>
-<div class="content">
+    <main>
+        <!-- Главное меню (nav) -->
+        <nav id="nav-menu">
+            <button onclick="loadView('chat')">💬 Чат с Неоном</button>
+            <button onclick="loadView('files')">📁 Файлы</button>
+            <button onclick="loadView('translate')">🌐 Перевод</button>
+            <button onclick="loadView('status')">📊 Статус</button>
+            
+            <button onclick="loadView('settings')">⚙ Настройки</button>
+            <button onclick="loadView('instruction')">📖 Инструкция</button>
+<button onclick="openSearch()">🔍 Поиск по нику</button>
+<button onclick="openScanner()">🛡️ CyberScanner</button>
+            <button onclick="openTerminal()" class="action">🌊 Открыть Терминал</button>
+            <button onclick="runAction('audit')" class="action">🛡️ Аудит</button>
+            <button onclick="runAction('backup')" class="action">💾 Бэкап</button>
+        </nav>
 
-<div style="padding: 10px 15px;">
-  <button onclick="openTerminal()" style="width:100%; padding:0.8rem; background:linear-gradient(135deg, #bb86fc, #9c27b0); color:#fff; border:none; border-radius:0.5rem; font-size:1rem; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow: 0 4px 15px rgba(187,134,252,0.4);">
-    🌊 Открыть Rumix Terminal
-  </button>
-</div>
+        <!-- Экраны (view) -->
+        <div id="view-chat" class="view">
+            <h2>💬 Чат с Неоном</h2>
+            <div class="chat-area" id="chat-log"><div class="msg sys">[SYSTEM] Rumix Shell запущен.</div></div>
+            <div class="input-area">
+                <input type="text" id="chat-input" placeholder="Напиши Неону..." onkeypress="if(event.key==='Enter')sendChat()">
+                <button onclick="sendChat()">➤</button>
+            </div>
+        </div>
 
-<div id="view-chat" style="display:block">
-<div class="chat-area" id="chat-log"><div class="msg sys">[SYSTEM] Rumix Shell запущен. Ожидаю команды...</div></div>
-<div class="input-area">
-<input type="text" id="chat-input" placeholder="Напиши Неону..." onkeypress="handleEnter(event)">
-<button class="action" onclick="sendChat()">➤</button>
-</div>
-</div>
+        <div id="view-files" class="view">
+            <h2>📁 Файлы</h2>
+            <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+                <button onclick="filesUp()" style="background:#4c1d95;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;min-height:44px">⬆ Вверх</button>
+                <button onclick="filesMakeZip()" style="background:#7c3aed;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;min-height:44px">📦 ZIP</button>
+                <button onclick="filesExtract()" style="background:#0891b2;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;min-height:44px">📤 Распаковать</button>
+                <input id="files-path" readonly style="flex:1;min-width:120px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px;font-size:12px">
+            </div>
+            <div class="files-list" id="files-list">Загрузка...</div>
+        </div>
 
+        <div id="view-translate" class="view">
+            <h2>🌐 Перевод</h2>
+            <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
+                <input id="trans-src" value="en" placeholder="en" style="width:60px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
+                <span style="align-self:center;color:#888">→</span>
+                <input id="trans-trg" value="ru" placeholder="ru" style="width:60px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
+                <input id="trans-text" placeholder="Текст для перевода..." style="flex:1;min-width:120px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
+            </div>
+            <div style="display:flex;gap:6px;margin-bottom:8px">
+                <button onclick="doTranslate()" style="background:#7c3aed;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">Перевести</button>
+                <button onclick="doSpeak()" style="background:#0891b2;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">🔊 Сказать</button>
+            </div>
+            <div id="trans-result" style="color:#a78bfa;font-size:14px;white-space:pre-wrap;min-height:20px"></div>
+            <div style="margin-top:12px">
+                <input id="speak-text" placeholder="Текст для озвучки..." style="width:100%;background:#1a1a2e;color:#eee;border:1px solid #444;padding:10px;border-radius:6px;margin-bottom:6px">
+                <button onclick="doSpeak()" style="background:#0891b2;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">🔊 Сказать</button>
+            </div>
+        </div>
 
-<div id="view-settings" style="display:none">
-  <h2>Настройки и память</h2>
-  <div style="margin-top:1rem">
-    <h3 style="color:var(--accent)">PIN-код</h3>
-    <p style="opacity:0.7">Сменить PIN-код оболочки и терминала.</p>
-    <input type="password" id="new-pin" placeholder="Новый PIN (мин. 4)" style="padding:10px;background:var(--panel);border:1px solid var(--accent);color:var(--text);border-radius:6px;width:200px">
-    <button onclick="changePin()" style="margin-left:8px;padding:10px 16px;background:var(--accent);color:var(--bg);border:none;font-weight:bold;cursor:pointer;border-radius:6px">Сменить PIN</button>
-    <p id="pin-set-msg" style="margin-top:8px"></p>
-  </div>
-</div>
-<div id="view-instruction" style="display:none">
-  <h2>📖 Инструкция</h2>
-  <p style="opacity:0.7">Полная инструкция: <a href="/api/instruction" target="_blank" style="color:var(--accent)">открыть в новой вкладке</a></p>
-  <pre id="instruction-content" style="background:var(--panel);padding:1rem;border-radius:8px;border:1px solid rgba(168,85,247,0.2);white-space:pre-wrap;font-family:'Courier New',monospace;font-size:0.85rem;max-height:70vh;overflow-y:auto">Загрузка...</pre>
-</div>
+        <div id="view-status" class="view">
+            <h2>📊 Статус</h2>
+            <p>Регрессия: <span id="stat-regression">-</span></p>
+        </div>
 
-<div id="view-projects" style="display:none">
-  <h2>📁 Проекты</h2>
-  <div id="projects-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.75rem;margin-top:1rem"></div>
-</div>
+        <div id="view-logs" class="view">
+            <h2>📜 Лог</h2>
+            <pre id="log-area">Загрузка...</pre>
+        </div>
 
-<div id="view-menu" style="display:none">
-  <h2>Меню Rumix</h2>
-  
+        <div id="view-settings" class="view">
+            <h2>⚙ Настройки</h2>
+            <div style="margin-bottom:16px">
+                <h3 style="color:#a78bfa;margin-bottom:8px">Тема</h3>
+                <button onclick="toggleTheme()" id="theme-btn" style="background:#4c1d95;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">🌙 Тёмная / ☀️ Светлая</button>
+            </div>
+            <div style="margin-bottom:16px">
+                <h3 style="color:#a78bfa;margin-bottom:8px">PIN-код</h3>
+                <input id="new-pin" placeholder="Новый PIN (мин. 4)" style="width:100%;background:#1a1a2e;color:#eee;border:1px solid #444;padding:10px;border-radius:6px;margin-bottom:6px">
+                <button onclick="changePin()" style="background:#7c3aed;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">Сменить PIN</button>
+                <div id="pin-msg" style="color:#a78bfa;margin-top:6px"></div>
+            </div>
+            <div style="margin-bottom:16px">
+                <h3 style="color:#a78bfa;margin-bottom:8px">Модель</h3>
+                <div id="model-info" style="color:#888">Загрузка...</div>
+            </div>
+        </div>
 
+        <div id="view-instruction" class="view">
+            <h2>📖 Инструкция</h2>
+            <p>Инструкция (в разработке)</p>
+        </div>
+    </main>
 
-<div id="menu-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-top:1rem">
-      <div class="btn-action" onclick="openSelftest()" style="padding:1rem; background:var(--card); border:1px solid var(--accent); border-radius:0.75rem; cursor:pointer; display:flex; align-items:center; gap:0.75rem;">
-        <span style="font-size:1.5rem;">🩺</span><span>Диагностика</span>
-      </div>
-    </div>
-</div>
-<div id="view-files" style="display:none">
-  <h2>📁 Файлы</h2>
-  <div style="display:flex;gap:8px;margin-bottom:8px">
-    <button onclick="filesUp()">⬆️ Вверх</button>
-    <button onclick="filesMakeZip()" style="background:#7c3aed;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">📦 Создать ZIP</button>
-    <button id="btn-extract" onclick="filesExtract()" style="display:none;background:#0891b2;color:#fff;border:none;padding:4px 10px;border-radius:4px;cursor:pointer">📤 Распаковать</button>
-    <input id="files-path" type="text" readonly style="flex:1;background:#1a1a2e;color:#eee;border:1px solid #444;padding:4px;border-radius:4px;font-size:13px">
-  </div>
-  <div id="files-list" style="max-height:60vh;overflow-y:auto;background:#1a1a2e;border:1px solid #333;border-radius:6px;padding:4px"></div>
-</div>
-<div id="view-translate" style="display:none">
-  <h2>🌐 Перевод и голос</h2>
-  <div id="mode-panel" style="background:linear-gradient(135deg,#1e1b4b,#2e1065);border:1px solid #7c3aed55;border-radius:12px;padding:12px;margin:12px 0">
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-    <span style="font-size:18px">🛡️</span>
-    <span style="color:#c4b5fd;font-weight:600;font-size:14px">Режим прав</span>
-    <span id="mode-status" style="margin-left:auto;color:#a78bfa;font-size:13px">default</span>
-  </div>
-  <div style="display:flex;gap:6px;flex-wrap:wrap">
-    <button onclick="setMode('default')" id="mode-default" style="background:#4c1d95;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px">Default</button>
-    <button onclick="setMode('auto_approve')" id="mode-auto" style="background:#4c1d95;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px">AutoApprove</button>
-    <button onclick="setMode('plan')" id="mode-plan" style="background:#4c1d95;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px">Plan</button>
-  </div>
-  <div id="plan-box" style="display:none;margin-top:8px">
-    <textarea id="plan-text" placeholder="Опишите план действий..." style="width:100%;min-height:60px;background:#0f0a1e;color:#e9d5ff;border:1px solid #4c1d95;padding:8px;border-radius:8px;font-size:14px;outline:none;box-sizing:border-box"></textarea>
-    <div style="display:flex;gap:6px;margin-top:6px">
-      <button onclick="approvePlan()" style="background:#7c3aed;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px">✅ Утвердить</button>
-      <button onclick="cancelPlan()" style="background:#4c1d95;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px">❌ Отменить</button>
-    </div>
-  </div>
-  <div id="plan-old-close" style="display:none"></div>
-</div>
-<div id="translate-panel" style="background:linear-gradient(135deg,#1e1b4b,#2e1065);border:1px solid #7c3aed55;border-radius:12px;padding:12px;margin:12px 0;box-shadow:0 4px 20px rgba(124,58,237,0.15)">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <span style="font-size:18px">🌐</span>
-      <span style="color:#c4b5fd;font-weight:600;font-size:14px">Перевод и голос</span>
-    </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-      <div style="display:flex;align-items:center;background:#0f0a1e;border:1px solid #4c1d95;border-radius:8px;padding:2px 6px">
-        <input id="trans-src" value="en" style="width:36px;background:transparent;color:#a78bfa;border:none;text-align:center;font-size:13px;outline:none">
-        <span style="color:#4c1d95;padding:0 2px">→</span>
-        <input id="trans-trg" value="ru" style="width:36px;background:transparent;color:#a78bfa;border:none;text-align:center;font-size:13px;outline:none">
-      </div>
-      <input id="trans-text" placeholder="Текст для перевода..." style="flex:1;min-width:120px;background:#0f0a1e;color:#e9d5ff;border:1px solid #4c1d95;padding:8px 10px;border-radius:8px;font-size:14px;outline:none">
-      <button onclick="doTranslate()" style="background:#7c3aed;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;box-shadow:0 0 10px #7c3aed66">Перевести</button>
-    </div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap">
-      <input id="speak-text" placeholder="Текст для озвучки..." style="flex:1;min-width:120px;background:#0f0a1e;color:#cffafe;border:1px solid #0e7490;padding:8px 10px;border-radius:8px;font-size:14px;outline:none">
-      <button onclick="doSpeak()" style="background:#0891b2;color:#fff;border:none;padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;box-shadow:0 0 10px #0891b266">🔊 Сказать</button>
-    </div>
-    <div id="trans-result" style="margin-top:10px;color:#c4b5fd;font-size:14px;white-space:pre-wrap;min-height:18px"></div>
-  </div>
-</div>
-<div id="view-status" style="display:none">
-<h2>Статус системы</h2>
-<div class="stats-grid">
-<div class="stat-card"><h3>Regression</h3><div class="value" id="stat-regression">--</div></div>
-<div class="stat-card"><h3>Config Drift</h3><div class="value" id="stat-drift">--</div></div>
-<div class="stat-card"><h3>Agents</h3><div class="value" id="stat-agents">--</div></div>
-<div class="stat-card"><h3>Loop</h3><div class="value" id="stat-loop">--</div></div>
-</div>
-</div>
-<div id="view-logs" style="display:none">
-<h2>Последние события</h2>
-<div class="log-area" id="log-area">Загрузка логов...</div>
-</div>
-</div>
-</main>
-<footer>Rumix Shell v0.1 — Неоновый шёпот</footer>
-<script>
-function openAdb(){
-  document.getElementById('adb-modal').style.display = 'flex';
-}
-async function adbConnect(){
-  const host = document.getElementById('adb-host').value;
-  const port = document.getElementById('adb-port').value;
+    <script>
+        function openSearch(){ window.open('/maigret', '_blank'); }
+async function runSearch(){
+  const u = document.getElementById('search-input').value.trim();
+  if (u === '') return;
+  const res = document.getElementById('search-result');
+  res.textContent = 'Ищу...';
   try {
-    const r = await fetch('/api/adb/connect', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({host, port})});
+    const r = await fetch('/api/search', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username: u})});
     const d = await r.json();
-    document.getElementById('adb-status').textContent = d.ok ? ('Подключено: ' + d.out) : ('Ошибка: ' + d.err);
-  } catch(e) { alert('Ошибка: ' + e); }
+    if (d.error) { res.textContent = 'Ошибка: ' + d.error; return; }
+    const found = d.data && d.data.results ? Object.keys(d.data.results).length : 0;
+    let out = 'Найдено: ' + found + ' сайтов\n\n';
+    if (d.data && d.data.results) { for (const [site, info] of Object.entries(d.data.results)) { if (info && info.url_user) out += '✅ ' + site + ': ' + info.url_user + '\n'; } }
+    res.textContent = out || 'Ничего не найдено';
+  } catch(e) { res.textContent = 'Ошибка: ' + e; }
 }
-async function adbLoadApps(){
-  try {
-    const r = await fetch('/api/adb/apps');
-    const d = await r.json();
-    const list = document.getElementById('adb-apps');
-    if (d.error) { list.textContent = 'Ошибка: ' + d.error; return; }
-    list.innerHTML = (d.apps || []).map(p => '<div>' + p + '</div>').join('');
-  } catch(e) { alert('Ошибка: ' + e); }
-}
-async function adbShell(){
-  const cmd = document.getElementById('adb-shell').value;
-  if (!cmd) return;
-  try {
-    const r = await fetch('/api/adb/shell', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({cmd})});
-    const d = await r.json();
-    document.getElementById('adb-output').textContent = d.out || d.err || 'Пусто';
-  } catch(e) { alert('Ошибка: ' + e); }
-}
-function openBrowser(){
-  const m = document.getElementById('browser-modal');
-  if (m) { m.style.display = 'flex'; document.getElementById('browser-url').focus(); }
-}
-function loadBrowserUrl(){
-  const url = document.getElementById('browser-url').value.trim();
-  if (!url) return;
-  const full = url.startsWith('http') ? url : ('https://' + url);
-  const frame = document.getElementById('browser-frame');
-  if (frame) frame.src = full;
-}
-function loadView(v){document.querySelectorAll('[id^=view-]').forEach(e=>e.style.display='none');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));document.getElementById('view-'+v).style.display='block';document.getElementById('btn-'+v).classList.add('active');if(v==='status')fetchStatus();if(v==='logs')fetchLogs();if(v==='files')fetchFiles();if(v==='menu')fetchMenu();if(v==='instruction')fetchInstruction();if(v==='projects')fetchProjects()}
-async function fetchStatus(){try{const r=await fetch('/api/status');const d=await r.json();document.getElementById('stat-regression').innerText=d.regression||'N/A';document.getElementById('stat-drift').innerText=d.drift||'N/A';document.getElementById('stat-agents').innerText=d.agents||'N/A';document.getElementById('stat-loop').innerText=d.loop||'N/A';document.getElementById('status-dot').className=d.ok?'status-dot ok':'status-dot'}catch(e){document.getElementById('status-dot').className='status-dot'}}
-async function fetchLogs(){try{const r=await fetch('/api/logs');const d=await r.json();document.getElementById('log-area').innerText=d.lines.join('\n')}catch(e){}}
-let _filesPath = '';
-let _filesScheme = 'file';
-let _filesHost = '';
-let _archiveParent = '';
-async function fetchFiles(path, scheme, host){
-  if (path !== undefined) _filesPath = path;
-  if (scheme !== undefined) _filesScheme = scheme;
-  if (host !== undefined) _filesHost = host;
-  if (!_filesPath) _filesPath = '';
-  let q = '?path=' + encodeURIComponent(_filesPath) + '&scheme=' + encodeURIComponent(_filesScheme);
-  if (_filesHost) q += '&host=' + encodeURIComponent(_filesHost);
-  const url = '/api/files' + q;
-  try {
-    const r = await fetch(url);
-    const d = await r.json();
-    const list = document.getElementById('files-list');
-    const pth = document.getElementById('files-path');
-    if (d.error) { list.innerHTML = '<div style=\'color:#f66;padding:8px\'>' + d.error + '</div>'; return; }
-    pth.value = d.path;
-    const extBtn = document.getElementById('btn-extract');
-    if (extBtn) extBtn.style.display = (_filesScheme !== 'file' && _filesHost) ? 'inline-block' : 'none';
-    _filesPath = d.path;
-    if (!d.items || d.items.length === 0) {
-      list.innerHTML = '<div style=\'color:#888;padding:8px\'>Пусто</div>';
-      return;
-    }
-    list.innerHTML = d.items.map(f => {
-      const icon = f.type === 'dir' ? '📁' : '📄';
-      const size = f.type === 'dir' ? '' : (' · ' + f.size + ' б');
-      const cls = f.type === 'dir' ? 'file-row file-dir' : 'file-row';
-      return '<div class=\'' + cls + '\' data-path=\'' + f.path.replace(/'/g,'&#39;') + '\' data-type=\'' + f.type + '\' onclick=\'filesClick(this)\'>' + icon + ' ' + f.name + '<span style=\'color:#666;font-size:12px\'>' + size + '</span></div>';
-    }).join('');
-  } catch(e) {
-    document.getElementById('files-list').innerHTML = '<div style=\'color:#f66;padding:8px\'>Ошибка: ' + e + '</div>';
-  }
-}
-function filesClick(el){
-  const path = el.getAttribute('data-path');
-  const type = el.getAttribute('data-type');
-  if (type === 'dir') { fetchFiles(path, _filesScheme, _filesHost); return; }
-  const lower = path.toLowerCase();
-  if (lower.endsWith('.zip') || lower.endsWith('.jar') || lower.endsWith('.apk')) {
-    _archiveParent = path.substring(0, path.lastIndexOf('/')) || '/';
-    fetchFiles('/', 'zip', path); return;
-  }
-  if (lower.endsWith('.tar') || lower.endsWith('.tgz') || lower.endsWith('.txz') || lower.endsWith('.tar.gz') || lower.endsWith('.tar.xz') || lower.endsWith('.tar.bz2') || lower.endsWith('.gz')) {
-    _archiveParent = path.substring(0, path.lastIndexOf('/')) || '/';
-    fetchFiles('/', 'tar', path); return;
-  }
-  filesOpen(path);
-}
-async function filesOpen(path){
-  const viewer = document.getElementById('file-viewer');
-  const name = document.getElementById('file-viewer-name');
-  const body = document.getElementById('file-viewer-body');
-  name.textContent = path.split('/').pop();
-  body.textContent = 'Загрузка...';
-  viewer.style.display = 'block';
-  try {
-    let u='/api/files/read?path='+encodeURIComponent(path)+'&scheme='+encodeURIComponent(_filesScheme); if(_filesHost)u+='&host='+encodeURIComponent(_filesHost); const r = await fetch(u);
-    const d = await r.json();
-    if (d.error) { body.textContent = 'Ошибка: ' + d.error; return; }
-    if (d.type === 'binary') { body.textContent = '[бинарный файл, размер: ' + d.size + ' б]'; return; }
-    body.textContent = d.content;
-  } catch(e) {
-    body.textContent = 'Ошибка: ' + e;
-  }
-}
-async function filesMakeZip(){
-  if (_filesScheme !== 'file') { alert('Можно только в локальной папке'); return; }
-  const path = _filesPath || '/data/data/com.termux/files/home';
-  if (!confirm('Создать ZIP в этой папке?')) return;
-  try {
-    const r = await fetch('/api/files/archive', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({path: path})
-    });
-    const d = await r.json();
-    if (d.error) { alert('Ошибка: ' + d.error); return; }
-    alert('Готово!\n' + d.output + '\nФайлов: ' + d.files + '\nРазмер: ' + d.size + ' б');
-    fetchFiles(_filesPath, _filesScheme, _filesHost);
-  } catch(e) { alert('Ошибка: ' + e); }
-}
-async function filesExtract(){
-  if (!_filesHost) { alert('Не архив'); return; }
-  const dest = _archiveParent || '';
-  if (!confirm('Распаковать в ' + dest + '?')) return;
-  try {
-    const r = await fetch('/api/files/extract', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({host: _filesHost, scheme: _filesScheme, dest: dest})
-    });
-    const d = await r.json();
-    if (d.error) { alert('Ошибка: ' + d.error); return; }
-    alert('Готово!\nФайлов: ' + d.files + '\nКуда: ' + d.dest);
-  } catch(e) { alert('Ошибка: ' + e); }
-}
-async function fetchMode(){
-  try {
-    const r = await fetch('/api/mode');
-    const d = await r.json();
-    const st = document.getElementById('mode-status');
-    if (st) st.textContent = d.mode || 'default';
-    document.querySelectorAll('[id^=mode-]').forEach(b => {
-      if (b.id !== 'mode-status') b.style.background = '#4c1d95';
-    });
-    const active = document.getElementById('mode-' + (d.mode || 'default').replace('_','-'));
-    if (active) active.style.background = '#7c3aed';
-  } catch(e) {}
-}
-async function setMode(m){
-  try {
-    const r = await fetch('/api/mode', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({mode: m})});
-    const d = await r.json();
-    if (d.ok) {
-      fetchMode();
-      const box = document.getElementById('plan-box');
-      if (box) box.style.display = (m === 'plan') ? 'block' : 'none';
-    }
-    else alert('Ошибка: ' + (d.error || 'неизвестно'));
-  } catch(e) { alert('Ошибка: ' + e); }
-}
-async function approvePlan(){
-  try {
-    const r = await fetch('/api/mode', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({mode:'default'})});
-    const d = await r.json();
-    if (d.ok) { alert('План утверждён. Режим Default.'); fetchMode(); document.getElementById('plan-box').style.display='none'; }
-  } catch(e) { alert('Ошибка: ' + e); }
-}
-function cancelPlan(){
-  setMode('default');
-  const box = document.getElementById('plan-box');
-  if (box) box.style.display = 'none';
-}
+
 async function doTranslate(){
   const src = document.getElementById('trans-src').value || 'en';
   const trg = document.getElementById('trans-trg').value || 'ru';
   const text = document.getElementById('trans-text').value;
-  if (!text) return;
+  if (text === '') return;
   const res = document.getElementById('trans-result');
   res.textContent = 'Перевод...';
   try {
-    const r = await fetch('/api/translate', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text, src, trg})});
+    const r = await fetch('/api/translate', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text, src, trg})});
     const d = await r.json();
     res.textContent = d.error ? ('Ошибка: ' + d.error) : d.result;
   } catch(e) { res.textContent = 'Ошибка: ' + e; }
 }
 async function doSpeak(){
-  const text = document.getElementById('speak-text').value;
-  if (!text) return;
+  const text = document.getElementById('speak-text').value || document.getElementById('trans-result').textContent;
+  if (text === '') return;
   try {
-    await fetch('/api/speak', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text})});
+    await fetch('/api/speak', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text})});
   } catch(e) { alert('Ошибка: ' + e); }
 }
-function filesUp(){
-  if (!_filesPath) return;
-  const parts = _filesPath.split('/').filter(x => x);
-  if (parts.length === 0 && (_filesScheme !== 'file' || _filesHost)) {
-    const back = _archiveParent || '';
-    _filesScheme = 'file'; _filesHost = ''; _filesPath = back; _archiveParent = '';
-    fetchFiles(back, 'file', '');
-    return;
-  }
-  parts.pop();
-  const parent = '/' + parts.join('/');
-  fetchFiles(parent || '/', _filesScheme, _filesHost);
+
+function toggleTheme(){
+  const body = document.body;
+  const isLight = body.getAttribute('data-theme') === 'light';
+  body.setAttribute('data-theme', isLight ? 'dark' : 'light');
+  localStorage.setItem('rumix_theme', isLight ? 'dark' : 'light');
 }
-
-async function sendChat(){const i=document.getElementById('chat-input');const t=i.value.trim();if(!t)return;const l=document.getElementById('chat-log');l.innerHTML+='<div class="msg">Вы: '+esc(t)+'</div>';l.scrollTop=l.scrollHeight;i.value='';try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt:t})});const d=await r.json();l.innerHTML+='<div class="msg neon">Неон: '+esc(d.response||'Нет ответа')+'</div>';l.scrollTop=l.scrollHeight}catch(e){l.innerHTML+='<div class="msg sys">[ERROR] Ошибка связи</div>'}}
-function handleEnter(e){if(e.key==='Enter')sendChat()}
-
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-fetchStatus();
-fetchMode();
-
-async function checkPin(){
-  const input = document.getElementById('pin-input');
-  const err = document.getElementById('pin-error');
-  const pin = input.value.trim();
-  if (!pin) return;
-  try {
-    const r = await fetch('/api/pin/check', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({pin: pin})
-    });
-    const d = await r.json();
-    if (d.ok) {
-      document.getElementById('pin-screen').style.display = 'none';
-      document.getElementById('main-app').style.display = 'flex';
-      sessionStorage.setItem('rumix_pin_ok', '1');
-    } else {
-      err.textContent = d.error || 'Неверный PIN';
-      err.style.display = 'block';
-      input.value = '';
-    }
-  } catch (e) {
-    err.textContent = 'Ошибка связи';
-    err.style.display = 'block';
-  }
-}
-
-document.getElementById('pin-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkPin();
-});
-
-// Если PIN уже введён в этой сессии — пропускаем
-if (sessionStorage.getItem('rumix_pin_ok') === '1') {
-  document.getElementById('pin-screen').style.display = 'none';
-  document.getElementById('main-app').style.display = 'flex';
-}
-
-
-async function fetchMenu(){
-  try {
-    const r = await fetch('/api/menu');
-    const d = await r.json();
-    const list = document.getElementById('menu-list');
-    list.innerHTML = '';
-    (d.items || []).forEach(item => {
-      const btn = document.createElement('button');
-      btn.style.cssText = 'background:var(--panel);color:var(--text);border:1px solid var(--accent);padding:1rem;font-size:1rem;cursor:pointer;border-radius:8px;text-align:left;font-family:inherit';
-      btn.innerHTML = item.icon + ' ' + item.label;
-      btn.onclick = () => menuClick(item.id);
-      list.appendChild(btn);
-    });
-  } catch (e) { console.error(e); }
-}
-
-function menuClick(id){
-  if (id === 'files') { loadView('files'); return; }
-  if (id === 'neon') { loadView('chat'); return; }
-  if (id === 'terminal') {
-    openTerminal();
-    return;
-  }
-  if (id === 'github') {
-    window.open('https://github.com/Yshi777-lang', '_blank');
-    return;
-  }
-  if (id === 'git_work') {
-    window.open('https://github.com/Yshi777-lang/Work', '_blank');
-    return;
-  }
-  if (id === 'fury') { runAction('fury'); return; }
-  if (id === 'runtime') { runAction('runtime'); return; }
-  if (id === 'install_neon') { runAction('install_neon'); return; }
-  if (id === 'projects') { loadView('projects'); return; }
-  alert('Скоро: ' + id);
-}
-
-
 async function changePin(){
   const input = document.getElementById('new-pin');
-  const msg = document.getElementById('pin-set-msg');
+  const msg = document.getElementById('pin-msg');
   const pin = input.value.trim();
-  if (pin.length < 4) {
-    msg.textContent = '❌ Минимум 4 символа';
-    msg.style.color = 'var(--danger)';
-    return;
-  }
+  if (pin.length < 4) { msg.textContent = 'Минимум 4 символа'; msg.style.color = '#f66'; return; }
   try {
-    const r = await fetch('/api/pin/set', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({pin: pin})
-    });
+    const r = await fetch('/api/pin/set', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({pin})});
     const d = await r.json();
-    if (d.ok) {
-      msg.textContent = '✅ PIN изменён';
-      msg.style.color = 'var(--success)';
-      input.value = '';
-    } else {
-      msg.textContent = '❌ ' + (d.error || 'Ошибка');
-      msg.style.color = 'var(--danger)';
-    }
-  } catch (e) {
-    msg.textContent = '❌ Ошибка связи';
-    msg.style.color = 'var(--danger)';
-  }
+    if (d.ok) { msg.textContent = '✅ PIN изменён'; msg.style.color = '#4ade80'; input.value = ''; }
+    else { msg.textContent = '❌ ' + (d.error || 'Ошибка'); msg.style.color = '#f66'; }
+  } catch(e) { msg.textContent = '❌ ' + e; msg.style.color = '#f66'; }
 }
-
-
-async function fetchInstruction(){
+async function fetchModel(){
   try {
-    const r = await fetch('/api/instruction');
+    const r = await fetch('/api/status');
     const d = await r.json();
-    document.getElementById('instruction-content').textContent = d.content || 'Пусто';
-  } catch (e) {
-    document.getElementById('instruction-content').textContent = 'Ошибка загрузки';
-  }
+    document.getElementById('model-info').textContent = 'Neon: ' + (d.neon ? 'жив' : 'спит') + ', модель: ' + (d.model ? 'OK' : 'нет');
+  } catch(e) {}
 }
 
+function openScanner(){ window.open('http://127.0.0.1:8002', '_blank'); }
 
-async function fetchProjects(){
-  try {
-    const r = await fetch('/api/projects');
-    const d = await r.json();
-    const list = document.getElementById('projects-list');
-    list.innerHTML = '';
-    (d.projects || []).forEach(p => {
-      const btn = document.createElement('button');
-      btn.style.cssText = 'background:var(--panel);color:var(--text);border:1px solid var(--accent);padding:1rem;font-size:0.95rem;cursor:pointer;border-radius:8px;text-align:left;font-family:inherit';
-      btn.innerHTML = '<div style="font-size:1.5rem">' + p.icon + '</div><div style="font-weight:bold;margin:0.5rem 0">' + p.name + '</div><div style="opacity:0.7;font-size:0.8rem">' + p.desc + '</div>';
-      btn.onclick = () => alert('Проект: ' + p.path);
-      list.appendChild(btn);
-    });
-  } catch (e) { console.error(e); }
-}
+function loadView(v) {
+            document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
+            const view = document.getElementById('view-' + v);
+            if (view) view.classList.add('active');
+            
+            const backBtn = document.getElementById('btn-back');
+            if (backBtn) backBtn.style.display = (v === 'menu') ? 'none' : 'block';
 
-
-
-
-
-let ttydWs = null;
-
-function sendTtydKey(key) {
-  if (!ttydWs) {
-    ttydWs = new WebSocket('ws://127.0.0.1:7681/ws');
-    ttydWs.onopen = () => {
-      ttydWs.send(JSON.stringify({ AuthToken: '' }));
-      ttydWs.send(JSON.stringify({ columns: 80, rows: 24 }));
-    };
-    setTimeout(() => {
-      if (ttydWs && ttydWs.readyState === WebSocket.OPEN) {
-        ttydWs.send('0' + key);
-      }
-    }, 500);
-  } else if (ttydWs.readyState === WebSocket.OPEN) {
-    ttydWs.send('0' + key);
-  }
-}
-
-</script>
-
-<!-- Терминал (Победа 87) -->
-<div id="terminal-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; flex-direction:column; padding:20px; box-sizing:border-box;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-    <h3 style="color:#bb86fc; margin:0;">🌊 Rumix Terminal</h3>
-    <button onclick="document.getElementById('terminal-modal').style.display='none'" style="background:#333; color:#fff; border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">Закрыть</button>
-  </div>
-  <div style="display:flex; gap:10px;">
-    <input id="terminal-input" type="text" placeholder="Введите команду..." style="flex:1; padding:10px; background:#1a1a1a; color:#fff; border:1px solid #bb86fc; border-radius:5px; font-family:monospace;" onkeydown="if(event.key==='Enter') sendTerminalCommand()">
-    <button onclick="sendTerminalCommand()" style="background:#bb86fc; color:#000; border:none; padding:10px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">▶</button>
-  </div>
-  <div id="terminal-output" style="flex:1; overflow-y:auto; background:#0a0a0a; color:#00ff00; font-family:monospace; padding:10px; border-radius:5px; margin-bottom:10px; white-space:pre-wrap;"></div>
-</div>
-
-<script>
-
-async function sendTerminalCommand() {
-  const input = document.getElementById('terminal-input');
-  const output = document.getElementById('terminal-output');
-  const cmd = input.value.trim();
-  if (!cmd) return;
-
-  output.innerHTML += `\n<span style="color:#bb86fc;">$ ${cmd}</span>\n`;
-  input.value = '';
-
-  try {
-    const res = await fetch('/api/terminal', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({cmd: cmd})
-    });
-    const data = await res.json();
-    
-    if (data.status === 'OK' || data.status === 'READ') {
-      output.innerHTML += `<span style="color:#00ff00;">${data.output || '(пусто)'}</span>\n`;
-    } else {
-      output.innerHTML += `<span style="color:#ff5555;">🚫 ${data.message}</span>\n`;
-    }
-  } catch (e) {
-    output.innerHTML += `<span style="color:#ff5555;">Ошибка: ${e.message}</span>\n`;
-  }
-  
-  output.scrollTop = output.scrollHeight;
-}
-</script>
-
-
-<!-- Диагностика (Победа 89) -->
-<div id="selftest-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; flex-direction:column; padding:20px; box-sizing:border-box;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-    <h3 style="color:#bb86fc; margin:0;">Диагностика Rumix</h3>
-    <button onclick="document.getElementById('selftest-modal').style.display='none'" style="background:#333; color:#fff; border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">Закрыть</button>
-  </div>
-  <div id="selftest-output" style="flex:1; background:#0a0a0a; color:#fff; font-family:monospace; padding:20px; border-radius:5px; overflow-y:auto;">
-    <p style="color:#888;">Загрузка...</p>
-  </div>
-</div>
-
-<script>
-async function openSelftest() {
-  document.getElementById('selftest-modal').style.display = 'flex';
-  const output = document.getElementById('selftest-output');
-  output.innerHTML = '<p style="color:#888;">Проверка дома...</p>';
-  
-  try {
-    const res = await fetch('/api/selftest');
-    const data = await res.json();
-    
-    let resultHtml = '<h4 style="color:#bb86fc;">Общий статус: ' + (data.overall === 'OK' ? 'OK' : 'WARN') + '</h4>';
-    resultHtml += '<hr style="border-color:#333; margin:10px 0;">';
-    
-    for (const check of data.checks) {
-      const icon = check.status === 'OK' ? '[OK]' : (check.status === 'WARN' ? '[WARN]' : '[ERROR]');
-      resultHtml += '<div style="margin-bottom:15px;">';
-      resultHtml += '<strong>' + icon + ' ' + check.name + '</strong><br>';
-      resultHtml += '<span style="color:#aaa; font-size:14px;">' + check.details + '</span>';
-      resultHtml += '</div>';
-    }
-    
-    output.innerHTML = resultHtml; output.scrollTop = output.scrollHeight;
-  } catch (e) {
-    output.innerHTML = '<p style="color:#ff5555;">Ошибка: ' + e.message + '</p>';
-  }
-}
-</script>
-
-
-
-
-
-<script>
-// Обработчик для кнопки Диагностика из меню
-document.addEventListener('click', function(e) {
-    let target = e.target.closest('.menu-item');
-    if (target && target.innerText.includes('Диагностика')) {
-        e.preventDefault();
-        e.stopPropagation();
-        openSelftest();
-    }
-}, true);
-</script>
-
-
-<script>
-// Перехватчик для кнопки "Диагностика" из меню (бэкенд)
-document.addEventListener('click', function(e) {
-    // Ищем элемент, который содержит текст "Диагностика"
-    let btn = e.target.closest('.menu-item, .btn-action, div, button');
-    if (btn && btn.innerText && btn.innerText.includes('Диагностика')) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (typeof openSelftest === 'function') {
-            openSelftest();
-        } else {
-            console.error('openSelftest not found');
+            if (v === 'status') fetchStatus();
+        fetchModel();
+            if (v === 'logs') fetchLogs();
+            if (v === 'files') fetchFiles();
         }
-        return false;
-    }
-}, true);
-</script>
 
+        async function fetchStatus() {
+            try {
+                const r = await fetch('/api/status', {credentials: 'include'});
+                const d = await r.json();
+                document.getElementById('stat-regression').innerText = d.regression || 'N/A';
+                document.getElementById('status-dot').className = d.ok ? 'status-dot ok' : 'status-dot';
+            } catch(e) {}
+        }
 
-<!-- Модальное окно для действий -->
-<div id="action-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; flex-direction:column; padding:20px; box-sizing:border-box;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-    <h3 id="action-title" style="color:#bb86fc; margin:0;">Результат</h3>
-    <button onclick="document.getElementById('action-modal').style.display='none'" style="background:#333; color:#fff; border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">Закрыть</button>
-  </div>
-  <pre id="action-output" style="flex:1; overflow-y:auto; background:#0a0a0a; color:#00ff00; font-family:monospace; padding:10px; border-radius:5px; white-space:pre-wrap; font-size:12px;"></pre>
-</div>
+        async function fetchLogs() {
+            try {
+                const r = await fetch('/api/logs', {credentials: 'include'});
+                const d = await r.json();
+                document.getElementById('log-area').innerText = d.lines.join('\n');
+            } catch(e) {}
+        }
 
-<script>
-async function runAction(a) {
-  if (a === 'backup' || a === 'restore') {
-    const actionName = a === 'backup' ? 'создать бекап' : 'восстановить из бекапа';
-    if (!confirm('Вы точно хотите ' + actionName + '?')) return;
-  }
+        async function fetchFiles() {
+            try {
+                const r = await fetch('/api/files', {credentials: 'include'});
+                const d = await r.json();
+                const list = document.getElementById('files-list');
+                if (d.error) { list.innerText = d.error; return; }
+                list.innerHTML = d.items.map(f => `<div class="file-row ${f.type === 'dir' ? 'file-dir' : ''}">${f.name}</div>`).join('');
+            } catch(e) { document.getElementById('files-list').innerText = 'Ошибка'; }
+        }
 
-  const modal = document.getElementById('action-modal');
-  const title = document.getElementById('action-title');
-  const output = document.getElementById('action-output');
-  title.innerText = '⏳ ' + a + '...';
-  output.innerText = 'Загрузка...';
-  modal.style.display = 'flex';
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+            const log = document.getElementById('chat-log');
+            log.innerHTML += `<div class="msg user">🧑 ${msg}</div>`;
+            input.value = '';
+            try {
+                const r = await fetch('/api/chat', { method: 'POST', credentials: 'include', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg}) });
+                const d = await r.json();
+                log.innerHTML += `<div class="msg neon">🤖 ${d.reply || 'Ошибка'}</div>`;
+                log.scrollTop = log.scrollHeight;
+            } catch(e) { log.innerHTML += `<div class="msg sys">Ошибка: ${e}</div>`; }
+        }
 
-  try {
-    const r = await fetch('/api/action', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({action: a})
-    });
-    const d = await r.json();
-    title.innerText = (d.ok ? '✅ ' : '❌ ') + a;
-    output.innerText = d.stdout || d.stderr || d.error || 'Нет вывода';
-  } catch (e) {
-    title.innerText = '❌ Ошибка';
-    output.innerText = 'Ошибка связи с бэкендом: ' + e.message;
-  }
-}
-</script>
+        function openTerminal() { window.open('/terminal', '_blank'); }
+        function runAction(action) { alert('Действие: ' + action); }
 
+        fetchStatus();
+    </script>
 
-<!-- ttyd терминал (Победа 98) -->
-<div id="ttyd-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; flex-direction:column; padding:20px; box-sizing:border-box;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-    <h3 style="color:#bb86fc; margin:0;">🌊 Rumix Terminal (ttyd)</h3>
-    <button onclick="document.getElementById('ttyd-modal').style.display='none'" style="background:#333; color:#fff; border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">Закрыть</button>
-  </div>
-  
-<div style="display:flex; gap:5px; padding:5px; background:#1a1a1a; border-radius:5px; margin-bottom:5px; overflow-x:auto; white-space:nowrap;">
-  
-  <button onclick="sendTtydKey('\x04')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">Ctrl+D</button>
-  <button onclick="sendTtydKey('\x1a')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">Ctrl+Z</button>
-  <button onclick="sendTtydKey('\x0c')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">Ctrl+L</button>
-<button onclick="sendTtydKey('\x03')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">Ctrl+C</button>
-
-  
-  
-  
-
-  <button onclick="sendTtydKey('\t')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">Tab</button>
-  <button onclick="sendTtydKey('\x1b')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">Esc</button>
-<button onclick="document.querySelector('#ttyd-modal iframe').contentWindow.location.reload()" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px; margin-left:auto;">Clear</button>
-  <button onclick="sendTtydKey('\x1b[A')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">↑</button>
-  <button onclick="sendTtydKey('\x1b[B')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">↓</button>
-  <button onclick="sendTtydKey('\x1b[D')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">←</button>
-  <button onclick="sendTtydKey('\x1b[C')" style="background:#333; color:#fff; border:none; padding:2px 6px; border-radius:3px; font-size:11px;">→</button>
-</div>
-
-<script>
-
-</script>
-
-<iframe src="http://127.0.0.1:7681" style="flex:1; border:none; border-radius:5px; background:#000;"></iframe>
-</div>
-
-<script>
-function openTerminal() { window.open("/terminal", "_blank"); return;
-  document.getElementById('terminal-modal').style.display = 'flex';
-  document.getElementById('terminal-input').focus();
-}
-</script>
-
-
-<script>
-async function syncControl(action) {
-  if (action === 'menu') {
-    const choice = prompt('Выбери действие:\n1. Запустить\n2. Остановить\n3. Изменить интервал\n4. Синхронизировать сейчас');
-    if (choice === '1') action = 'start';
-    else if (choice === '2') action = 'stop';
-    else if (choice === '3') {
-      const interval = prompt('Интервал (в минутах):');
-      if (interval && !isNaN(interval)) {
-        await fetch('/api/sync/control', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({action: 'interval', value: interval}) });
-        alert('Интервал изменён на ' + interval + ' минут.');
-      }
-      return;
-    }
-    else if (choice === '4') action = 'now';
-    else return;
-  }
-
-  if (action === 'stop') {
-    if (!confirm('Остановить синхронизацию?')) return;
-  }
-  const modal = document.getElementById('action-modal');
-  const title = document.getElementById('action-title');
-  const output = document.getElementById('action-output');
-  
-  if (modal) {
-    title.innerText = '🔄 Синхронизация...';
-    output.innerText = 'Выполняется...';
-    modal.style.display = 'flex';
-  }
-
-  try {
-    const r = await fetch('/api/sync/control', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({action: action})
-    });
-    const d = await r.json();
-    if (modal) {
-      title.innerText = d.ok ? '✅ Синхронизация' : '❌ Ошибка';
-      output.innerText = d.output || d.error || 'Нет вывода';
-    } else {
-      alert(d.output || d.error);
-    }
-  } catch (e) {
-    alert('Ошибка связи: ' + e.message);
-  }
-}
-</script>
-
-
-<!-- Модальное окно синхронизации -->
-<div id="sync-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; flex-direction:column; padding:20px; box-sizing:border-box; justify-content:center; align-items:center;">
-  <div style="background:#1a1a1a; padding:20px; border-radius:10px; width:90%; max-width:400px; display:flex; flex-direction:column; gap:10px;">
-    <h3 style="color:#bb86fc; margin:0 0 10px 0; text-align:center;">🔄 Управление синхронизацией</h3>
-    <button onclick="syncAction('start')" style="background:#4caf50; color:#fff; border:none; padding:12px; border-radius:5px; font-size:16px; cursor:pointer;">▶ Запустить</button>
-    <button onclick="syncAction('stop')" style="background:#f44336; color:#fff; border:none; padding:12px; border-radius:5px; font-size:16px; cursor:pointer;">⏹ Остановить</button>
-    <button onclick="syncAction('interval')" style="background:#2196f3; color:#fff; border:none; padding:12px; border-radius:5px; font-size:16px; cursor:pointer;">⏱ Задать интервал</button>
-    <button onclick="syncAction('now')" style="background:#ff9800; color:#fff; border:none; padding:12px; border-radius:5px; font-size:16px; cursor:pointer;">⚡ Синхронизировать сейчас</button>
-    <button onclick="document.getElementById('sync-modal').style.display='none'" style="background:#555; color:#fff; border:none; padding:10px; border-radius:5px; cursor:pointer;">Закрыть</button>
-  </div>
-</div>
-
-<script>
-function openSyncModal() {
-  document.getElementById('sync-modal').style.display = 'flex';
-}
-
-async function syncAction(action) {
-  let body = { action: action };
-  if (action === 'interval') {
-    const i = prompt('Введите интервал в минутах:');
-    if (!i || isNaN(i)) return;
-    body.value = i;
-  }
-  document.getElementById('sync-modal').style.display = 'none';
-  
-  const modal = document.getElementById('action-modal');
-  const title = document.getElementById('action-title');
-  const output = document.getElementById('action-output');
-  if (modal) {
-    title.innerText = '🔄 Синхронизация...';
-    output.innerText = 'Выполняется...';
-    modal.style.display = 'flex';
-  }
-
-  try {
-    const r = await fetch('/api/sync/control', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(body)
-    });
-    const d = await r.json();
-    if (modal) {
-      title.innerText = d.ok ? '✅ Синхронизация' : '❌ Ошибка';
-      output.innerText = d.output || d.error || 'Нет вывода';
-    }
-  } catch (e) {
-    alert('Ошибка: ' + e.message);
-  }
-}
-</script>
-
-
-<div id="file-viewer" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:999;padding:12px;overflow:auto">
-  <div style="max-width:900px;margin:0 auto;background:#1a1a2e;border:1px solid #444;border-radius:8px;padding:12px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-      <b id="file-viewer-name" style="color:#a78bfa;word-break:break-all"></b>
-      <button onclick="document.getElementById('file-viewer').style.display='none'">✖ Закрыть</button>
-    </div>
-    <pre id="file-viewer-body" style="white-space:pre-wrap;word-break:break-word;max-height:70vh;overflow:auto;color:#eee;font-size:13px;margin:0"></pre>
-  </div>
-</div>
-
-<div id="browser-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;padding:12px;flex-direction:column">
+<div id="search-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;padding:12px;flex-direction:column">
   <div style="display:flex;gap:6px;margin-bottom:8px">
-    <input id="browser-url" placeholder="https://..." style="flex:1;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px;font-size:14px" onkeypress="if(event.key==='Enter')loadBrowserUrl()">
-    <button onclick="loadBrowserUrl()" style="background:#7c3aed;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer">→</button>
-    <button onclick="document.getElementById('browser-modal').style.display='none'" style="background:#4c1d95;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer">✖</button>
+    <input id="search-input" placeholder="Введи ник..." style="flex:1;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
+    <button onclick="runSearch()" style="background:#7c3aed;color:#fff;border:none;padding:8px 12px;border-radius:6px">🔍</button>
+    <button onclick="document.getElementById('search-modal').style.display='none'" style="background:#4c1d95;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:1rem;min-width:48px">← Назад</button>
   </div>
-  <iframe id="browser-frame" style="flex:1;border:1px solid #333;border-radius:8px;background:#fff"></iframe>
-  <div id="browser-note" style="color:#888;font-size:12px;margin-top:6px;text-align:center">Некоторые сайты блокируют iframe. Если пусто — открой в новой вкладке.</div>
-</div>
-
-<div id="adb-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;padding:12px;flex-direction:column;overflow:auto">
-  <h2 style="color:#a78bfa;margin:0 0 10px 0">📱 ADB Управление</h2>
-  <div style="display:flex;gap:6px;margin-bottom:8px">
-    <input id="adb-host" value="127.0.0.1" placeholder="Host" style="width:120px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:6px;border-radius:6px">
-    <input id="adb-port" value="5555" placeholder="Port" style="width:70px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:6px;border-radius:6px">
-    <button onclick="adbConnect()" style="background:#7c3aed;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">Подключить</button>
-    <button onclick="document.getElementById('adb-modal').style.display='none'" style="background:#4c1d95;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;margin-left:auto">✖</button>
-  </div>
-  <div id="adb-status" style="color:#888;font-size:13px;margin-bottom:8px">Не подключено</div>
-  <div style="display:flex;gap:6px;margin-bottom:8px">
-    <button onclick="adbLoadApps()" style="background:#0891b2;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">Список приложений</button>
-  </div>
-  <div id="adb-apps" style="max-height:40vh;overflow-y:auto;background:#1a1a2e;border:1px solid #333;border-radius:8px;padding:6px;font-size:13px;color:#eee"></div>
-  <h3 style="color:#a78bfa;margin:12px 0 6px 0">Shell</h3>
-  <div style="display:flex;gap:6px">
-    <input id="adb-shell" placeholder="pm list packages..." style="flex:1;background:#1a1a2e;color:#eee;border:1px solid #444;padding:6px;border-radius:6px">
-    <button onclick="adbShell()" style="background:#7c3aed;color:#fff;border:none;padding:6px 12px;border-radius:6px;cursor:pointer">Выполнить</button>
-  </div>
-  <pre id="adb-output" style="background:#0f0a1e;color:#a78bfa;padding:8px;border-radius:6px;margin-top:8px;max-height:30vh;overflow:auto;font-size:12px;white-space:pre-wrap"></pre>
+  <pre id="search-result" style="flex:1;background:#0f0a1e;color:#a78bfa;padding:8px;border-radius:6px;overflow:auto;font-size:12px">Введи ник и нажми 🔍</pre>
 </div>
 </body>
 </html>

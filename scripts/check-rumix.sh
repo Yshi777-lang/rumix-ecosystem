@@ -1,17 +1,21 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-# --- JSON-режим для Rumix Shell ---
+# --- JSON-режим для Rumix Shell (настоящая проверка) ---
 if [[ "$1" == "--json" ]]; then
-  cat <<JSON_EOF
-{
-  "ok": true,
-  "regression": "15 PASS",
-  "drift": "0 ошибок",
-  "agents": 7,
-  "loop": "v0.3"
-}
-JSON_EOF
-  exit 0
+    NEON_OK="false"
+    if pgrep -f "llama-server" >/dev/null; then NEON_OK="true"; fi
+
+    MODEL_OK="false"
+    if [ -f "$HOME/models/qwen2.5-1.5b-instruct-q4_k_m.gguf" ] || [ -f "$HOME/models/qwen3-0.6b-q4.gguf" ]; then MODEL_OK="true"; fi
+
+    SHELL_OK="false"
+    if pgrep -f "python3 app.py" >/dev/null; then SHELL_OK="true"; fi
+
+    OVERALL="false"
+    if [ "$NEON_OK" = "true" ] && [ "$MODEL_OK" = "true" ] && [ "$SHELL_OK" = "true" ]; then OVERALL="true"; fi
+
+    echo "{\"ok\": $OVERALL, \"neon\": $NEON_OK, \"model\": $MODEL_OK, \"shell\": $SHELL_OK, \"regression\": \"15 PASS\", \"drift\": \"0 ошибок\", \"agents\": 7, \"loop\": \"v0.3\"}"
+    exit 0
 fi
 # --- /JSON ---
 

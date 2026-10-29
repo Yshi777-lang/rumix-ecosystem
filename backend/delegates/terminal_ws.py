@@ -9,7 +9,10 @@ from flask_socketio import SocketIO, emit
 def register_terminal_ws(socketio):
     @socketio.on('terminal_input')
     def handle_terminal_input(data):
+        from flask import session
+        pass  # без проверки (PIN отключён)
         # Запускаем PTY (один раз)
+        print('[terminal_ws] input received:', data, flush=True)
         if not hasattr(socketio, 'pty_fd'):
             pid, fd = pty.fork()
             if pid == 0:
