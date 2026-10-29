@@ -39,8 +39,10 @@ while true; do
         "🗂  Файлы" \
         "🐙 GitHub" \
         "⚙️  Настройки и память" \
+        "📊 Статус (жив ли дом)" \
         "🗺️  Карта дома" \
         "📖 Инструкция" \
+        "🛑 Остановить всё" \
         "🚪 Выход")
 
     case "$choice" in
@@ -90,12 +92,20 @@ while true; do
         "⚙️  Настройки и память")
             bash "$HOME/rumix/scripts/settings-menu.sh"
             ;;
+        "📊 Статус (жив ли дом)")
+            bash "$HOME/rumix/scripts/status.sh"
+            read -p "Enter..."
+            ;;
         "🗺️  Карта дома")
             bash "$HOME/rumix/scripts/show-map.sh"
             ;;
         "📖 Инструкция")
             clear
             less "$HOME/Work/blocks/cards/rumix-first-time.md"
+            ;;
+        "🛑 Остановить всё")
+            bash "$HOME/rumix/scripts/stop-all.sh"
+            read -p "Enter..."
             ;;
         "🚪 Выход")
             echo "🧬 До встречи, Мыслитель."
