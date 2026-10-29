@@ -56,6 +56,46 @@ def agent_status():
             pass
     return jsonify({'status': 'idle'})
 
+@app.route('/stop')
+def stop_page():
+    from pathlib import Path
+    return (Path(__file__).parent.parent / 'web' / 'stop.html').read_text(encoding='utf-8')
+
+@app.route('/api/stop', methods=['POST'])
+def api_stop():
+    import subprocess
+    results = []
+    try:
+        subprocess.run(['pkill', '-f', 'web/app.py'], capture_output=True)
+        results.append('CyberScanner: остановлен')
+    except Exception as e:
+        results.append(f'CyberScanner: {e}')
+    try:
+        subprocess.run(['pkill', '-f', 'llama-server'], capture_output=True)
+        results.append('Неон: остановлен')
+    except Exception as e:
+        results.append(f'Неон: {e}')
+    return jsonify({'ok': True, 'results': results})
+
+@app.route('/map')
+def map_page():
+    from pathlib import Path
+    return (Path(__file__).parent.parent / 'web' / 'map.html').read_text(encoding='utf-8')
+
+@app.route('/api/map')
+def api_map():
+    from pathlib import Path
+    import json
+    f = Path.home() / 'Work' / 'notes' / 'CORE' / 'RUMIX_MAP.md'
+    if f.exists():
+        return jsonify({'ok': True, 'content': f.read_text(encoding='utf-8')})
+    return jsonify({'ok': False, 'content': 'Карта не найдена: ' + str(f)})
+
+@app.route('/status')
+def status_page():
+    from pathlib import Path
+    return (Path(__file__).parent.parent / 'web' / 'status.html').read_text(encoding='utf-8')
+
 @app.route('/api/status')
 def status():
     script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts/check-rumix.sh')

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumix · Статус</title>
+    <style>
+        :root { --bg: #0a0f0a; --surface: #111a11; --primary: #39ff14; --on-primary: #000; --outline: #1e3a1e; --text: #c8ffc8; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; display: flex; flex-direction: column; }
+        header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--outline); padding-bottom: 12px; }
+        header h1 { color: var(--primary); text-shadow: 0 0 10px var(--primary); font-size: 1.5rem; flex: 1; }
+        .subtitle { color: #888; font-size: 12px; margin-bottom: 16px; }
+        button { background: var(--primary); color: var(--on-primary); border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; min-height: 44px; margin-right: 6px; margin-bottom: 6px; transition: all 0.2s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button.secondary { background: var(--surface); color: var(--primary); border: 1px solid var(--primary); }
+        .panel { background: var(--surface); border: 1px solid var(--outline); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .console { background: #000; border: 1px solid var(--outline); border-radius: 6px; padding: 10px; min-height: 200px; max-height: 60vh; overflow-y: auto; font-size: 12px; white-space: pre-wrap; color: var(--primary); }
+        .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="secondary" onclick="window.location.href='/'">← В Shell</button>
+        <h1>Статус</h1>
+    </header>
+    <p class="subtitle">Жив ли дом? Все системы</p>
+    <div class="panel fade-in">
+        <div class="row">
+            <button onclick="loadStatus()">🔄 Обновить</button>
+        </div>
+        <div class="console" id="status-console">[SYSTEM] Нажми «Обновить»...</div>
+    </div>
+    <script>
+        async function loadStatus() {
+            const c = document.getElementById('status-console');
+            c.textContent = '[SYSTEM] Проверяю дом...';
+            try {
+                const r = await fetch('/api/status');
+                const d = await r.json();
+                c.textContent = '📊 СТАТУС ДОМА\n' + '═'.repeat(40) + '\n' + JSON.stringify(d, null, 2);
+            } catch(e) {
+                c.textContent = '❌ Ошибка: ' + e;
+            }
+        }
+        loadStatus();
+    </script>
+</body>
+</html>
