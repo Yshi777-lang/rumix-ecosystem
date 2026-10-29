@@ -1,8 +1,6 @@
 {
   "schema_version": 1,
-
-  "updated": "2026-10-12",
-  "updated": "2026-10-12",
+  "updated": "2026-10-29",
   "models": [
     {
       "id": "qwen3-0.6b-q4",
@@ -17,9 +15,23 @@
       "kvBytesPerToken": 24576,
       "maxContext": 8192,
       "format": "GGUF",
-      "description": "Default local model. Single source: MaziyarPanahi. Verified on tablet + phone.",
+      "description": "Archive model (27.10). Older, faster.",
       "license": "Apache-2.0",
       "downloadUrl": "https://huggingface.co/MaziyarPanahi/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B.Q4_K_M.gguf",
+      "managed": false
+    },
+    {
+      "id": "qwen2.5-1.5b-q4",
+      "title": "Qwen2.5 1.5B Instruct Q4_K_M",
+      "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+      "revision": "main",
+      "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "local_path": "~/models/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "bytes": 1117320736,
+      "minimumRamGiB": 4,
+      "format": "GGUF",
+      "description": "Active model (28.10).",
+      "license": "Apache-2.0",
       "managed": true
     }
   ]
