@@ -41,6 +41,16 @@ NEON_SYSTEM_PROMPT = _character + """
 def api_chat():
     data = request.get_json()
     message = data.get('message') or data.get('prompt', '')
+
+    # Статус: думает
+    import json as _json
+    from pathlib import Path as _Path
+    _status_file = _Path.home() / '.rumix_status.json'
+    try:
+        _status_file.write_text(_json.dumps({'status': 'thinking', 'time': __import__('time').time()}))
+    except Exception:
+        pass
+
     
     # Загрузка истории
     history_context = ""
@@ -115,8 +125,16 @@ def api_chat():
                     reply = f"ERR: {tool_name}: {e}"
             save_message('neon', reply)
             export_chat()
+            try:
+                (Path.home() / '.rumix_status.json').write_text(json.dumps({'status': 'done', 'time': __import__('time').time()}))
+            except Exception:
+                pass
             return jsonify({'reply': reply, 'response': reply})
         else:
+            try:
+                (Path.home() / '.rumix_status.json').write_text(json.dumps({'status': 'done', 'time': __import__('time').time()}))
+            except Exception:
+                pass
             return jsonify({'error': 'Неон не ответил'}), 500
     except Exception as e:
         return jsonify({'error': str(e)}), 500

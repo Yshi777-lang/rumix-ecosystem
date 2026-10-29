@@ -1,5 +1,4 @@
 #!/data/data/com.termux/files/usr/bin/bash
-set -e
 
 echo "🌊 Rumix — установка..."
 
@@ -12,17 +11,17 @@ fi
 # 2. Пакеты
 echo "📦 Устанавливаю пакеты..."
 pkg update -y
-pkg install -y python git zsh curl wget rust clang cmake jq gum llama-cpp
+pkg install -y python git zsh curl wget rust clang cmake jq gum llama-cpp dnsutils termux-api
 
 # 3. Python-библиотеки
 echo "🐍 Устанавливаю Python-библиотеки..."
-pip install flask flask-socketio requests
+pip install flask flask-socketio requests termux-tts
 
-# 4. Модель Неона
-echo "🧠 Качаю модель Qwen3 0.6B..."
+# 4. Модель Неона (1.5B — активная)
+echo "🧠 Качаю модель Qwen2.5 1.5B..."
 mkdir -p ~/models
-if [ ! -f ~/models/qwen3-0.6b-q4.gguf ]; then
-    curl -fL -o ~/models/qwen3-0.6b-q4.gguf "https://huggingface.co/MaziyarPanahi/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B.Q4_K_M.gguf"
+if [ ! -f ~/models/qwen2.5-1.5b-instruct-q4_k_m.gguf ]; then
+    curl -fL -o ~/models/qwen2.5-1.5b-instruct-q4_k_m.gguf "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/main/qwen2.5-1.5b-instruct-q4_k_m.gguf"
 else
     echo "✅ Модель уже есть."
 fi
@@ -43,4 +42,4 @@ fi
 echo "🚀 Запускаю Неона..."
 bash ~/rumix/scripts/neon.sh start || true
 
-echo "🌊 Rumix установлен! Запускай: bash ~/rumix/scripts/shell-start.sh"
+echo "🌊 Rumix установлен! Запускай: bash ~/rumix/scripts/launch-all.sh"

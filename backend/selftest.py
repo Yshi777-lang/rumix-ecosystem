@@ -3,6 +3,8 @@
 
 import subprocess
 import os
+import sys
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 def check_permission_gate():
     try:
@@ -44,3 +46,8 @@ def run_all():
     # Общий статус
     all_ok = all(r['status'] == 'OK' for r in results)
     return {"overall": "OK" if all_ok else "WARN", "checks": results}
+
+
+if __name__ == "__main__":
+    import json
+    print(json.dumps(run_all(), ensure_ascii=False, indent=2))

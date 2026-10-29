@@ -36,13 +36,25 @@ def index():
 @app.before_request
 def check_auth():
     # Разрешаем без авторизации только вход и статус
-    if request.path.startswith('/static/') or request.path in ['/api/pin/check', '/api/pin/status', '/api/status', '/', '/terminal']:
+    if request.path.startswith('/static/') or request.path in ['/api/pin/check', '/api/pin/status', '/api/status', '/api/agent/status', '/', '/terminal']:
         return
     # Если PIN не установлен — пускаем всех (первый запуск)
     if not os.path.exists(PIN_FILE):
         return
     # Всё остальное — только с сессией
     return  # проверка отключена (временно)
+
+@app.route('/api/agent/status')
+def agent_status():
+    import json
+    from pathlib import Path
+    f = Path.home() / '.rumix_status.json'
+    if f.exists():
+        try:
+            return jsonify(json.loads(f.read_text(encoding='utf-8')))
+        except Exception:
+            pass
+    return jsonify({'status': 'idle'})
 
 @app.route('/api/status')
 def status():

@@ -343,12 +343,24 @@ function loadView(v) {
             const log = document.getElementById('chat-log');
             log.innerHTML += `<div class="msg user">🧑 ${msg}</div>`;
             input.value = '';
+            const thinkDiv = document.createElement('div');
+            thinkDiv.className = 'msg sys';
+            thinkDiv.id = 'thinking';
+            thinkDiv.innerText = '🤖 Неон думает...';
+            log.appendChild(thinkDiv);
+            log.scrollTop = log.scrollHeight;
             try {
                 const r = await fetch('/api/chat', { method: 'POST', credentials: 'include', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg}) });
                 const d = await r.json();
+                const t = document.getElementById('thinking');
+                if (t) t.remove();
                 log.innerHTML += `<div class="msg neon">🤖 ${d.reply || 'Ошибка'}</div>`;
                 log.scrollTop = log.scrollHeight;
-            } catch(e) { log.innerHTML += `<div class="msg sys">Ошибка: ${e}</div>`; }
+            } catch(e) {
+                const t = document.getElementById('thinking');
+                if (t) t.remove();
+                log.innerHTML += `<div class="msg sys">Ошибка: ${e}</div>`;
+            }
         }
 
         function openTerminal() { window.open('/terminal', '_blank'); }
