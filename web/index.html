@@ -2,341 +2,125 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Rumix Shell</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumix · Shell</title>
     <style>
         :root {
-            --bg: #0f0a1e;
-            --surface: #1a1a2e;
-            --surface-variant: #252540;
-            --primary: #a855f7;
-            --on-primary: #ffffff;
-            --outline: #444;
-            --text: #e2e8f0;
-            --danger: #f66;
+            --bg: #0a0f0a;
+            --surface: #111a11;
+            --primary: #39ff14;
+            --on-primary: #000;
+            --outline: #1e3a1e;
+            --text: #c8ffc8;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 16px;
-            background: rgba(26, 26, 46, 0.8);
-            border-bottom: 1px solid var(--outline);
-            z-index: 100;
-            flex-shrink: 0;
-        }
-        header h1 { font-size: 1.2rem; text-transform: uppercase; letter-spacing: 2px; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--danger); display: inline-block; }
-        .status-dot.ok { background: #4ade80; }
-        #btn-back {
-            display: none;
-            background: var(--surface-variant);
-            color: var(--on-primary);
-            border: 1px solid var(--outline);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        main { flex: 1; overflow-y: auto; position: relative; }
-        nav {
-            display: flex;
-            flex-direction: column;
-            padding: 16px;
-            gap: 8px;
-            height: 100%;
-            overflow-y: auto;
-        }
-        nav button {
-            background: var(--surface);
-            border: 1px solid var(--outline);
-            color: var(--text);
-            padding: 16px;
-            text-align: left;
-            font-size: 1rem;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-height: 48px;
-            transition: background 0.2s;
-        }
-        nav button:hover { background: var(--surface-variant); }
-        nav button.action { background: var(--primary); color: var(--on-primary); border: none; }
-        nav button.action:hover { opacity: 0.9; }
-        .view {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: var(--bg);
-            padding: 16px;
-            overflow-y: auto;
-            z-index: 50;
-            animation: fadeIn 0.2s ease;
-        }
+        body { font-family: 'Courier New', monospace; background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; display: flex; flex-direction: column; }
+        header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--outline); padding-bottom: 12px; }
+        header h1 { color: var(--primary); text-shadow: 0 0 10px var(--primary); font-size: 1.5rem; flex: 1; }
+        .status { font-size: 12px; color: #888; }
+        .status .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #ff4444; margin-right: 4px; }
+        .status .dot.ok { background: #39ff14; box-shadow: 0 0 5px #39ff14; }
+        nav { margin-bottom: 12px; }
+        .btn-group { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px; background: var(--surface); border: 1px solid var(--outline); border-radius: 8px; margin-bottom: 8px; align-items: center; }
+        .group-label { font-size: 11px; color: var(--primary); margin-right: 8px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-group button { background: var(--primary); color: var(--on-primary); border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; font-family: inherit; cursor: pointer; font-size: 12px; transition: all 0.2s; }
+        .btn-group button:hover { opacity: 0.8; transform: translateY(-1px); }
+        .view { display: none; }
         .view.active { display: block; }
+        .chat-area { background: #000; border: 1px solid var(--outline); border-radius: 6px; padding: 10px; min-height: 200px; max-height: 60vh; overflow-y: auto; font-size: 13px; white-space: pre-wrap; margin-bottom: 8px; }
+        .msg { padding: 4px 0; }
+        .msg.user { color: #aaa; }
+        .msg.neon { color: var(--primary); }
+        .msg.sys { color: #888; font-style: italic; }
+        #chat-input { width: 100%; padding: 10px; background: var(--surface); border: 1px solid var(--outline); color: var(--text); border-radius: 6px; font-family: inherit; font-size: 14px; margin-bottom: 8px; }
+        #chat-input:focus { border-color: var(--primary); outline: none; }
+        .panel { background: var(--surface); border: 1px solid var(--outline); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
+        .action { background: var(--primary); color: var(--on-primary); border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: inherit; margin: 4px; }
+        .action:hover { opacity: 0.9; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-        .view h2 { margin-bottom: 16px; color: var(--primary); }
-        .chat-area {
-            height: 60%;
-            background: var(--surface);
-            border: 1px solid var(--outline);
-            border-radius: 8px;
-            padding: 12px;
-            overflow-y: auto;
-            font-family: monospace;
-            font-size: 0.9rem;
-            margin-bottom: 12px;
-            white-space: pre-wrap;
-        }
-        .input-area { display: flex; gap: 8px; }
-        .input-area input {
-            flex: 1;
-            padding: 12px;
-            background: var(--surface);
-            border: 1px solid var(--outline);
-            color: var(--text);
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        .input-area button {
-            padding: 12px 20px;
-            background: var(--primary);
-            color: var(--on-primary);
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        .files-list { display: flex; flex-direction: column; gap: 4px; }
-        .file-row { padding: 12px; border-bottom: 1px solid var(--outline); cursor: pointer; display: flex; justify-content: space-between; }
-        .file-row:hover { background: var(--surface-variant); }
-        .file-dir { color: var(--primary); }
-    
-* { box-sizing: border-box; max-width: 100%; }
-body { overflow-x: hidden; }
-pre { white-space: pre-wrap; word-wrap: break-word; }
-input, textarea { max-width: 100%; }
-</style>
+        .fade-in { animation: fadeIn 0.3s ease; }
+    </style>
 </head>
 <body>
     <header>
-        <button id="btn-back" onclick="loadView('menu')">⬅ Назад</button>
-        <h1>Rumix Shell</h1>
-        <div>Status: <span class="status-dot" id="status-dot"></span></div>
+        <h1>🌊 RUMIX SHELL</h1>
+        <div class="status"><span class="dot" id="status-dot"></span> Status: <span id="status-text">...</span></div>
     </header>
 
-    <main>
-        <!-- Главное меню (nav) -->
-        <nav id="nav-menu">
-            <button onclick="loadView('chat')">💬 Чат с Неоном</button>
-            <button onclick="loadView('files')">📁 Файлы</button>
-            <button onclick="loadView('translate')">🌐 Перевод</button>
-            <button onclick="loadView('status')">📊 Статус</button>
-            
-            <button onclick="loadView('settings')">⚙ Настройки</button>
-            <button onclick="loadView('instruction')">📖 Инструкция</button>
-<button onclick="openSearch()">🔍 Поиск по нику</button>
-<button onclick="openScanner()">🛡️ CyberScanner</button>
-            <button onclick="showTerminalNotice()" class="action">🌊 Терминал (отключён)</button>
-            <button onclick="runAction('audit')" class="action">🛡️ Аудит</button>
-            <button onclick="runAction('backup')" class="action">💾 Бэкап</button>
-            <button onclick="window.open('/status', '_blank')" class="action">📊 Статус</button>
-            <button onclick="window.open('/map', '_blank')" class="action">🗺️ Карта дома</button>
-            <button onclick="window.open('/stop', '_blank')" class="action">🛑 Остановить всё</button>
-        </nav>
+    <nav id="nav-menu">
+        <div class="btn-group">
+            <span class="group-label">💬 Работа</span>
+            <button onclick="loadView('chat')">Чат</button>
+            <button onclick="loadView('files')">Файлы</button>
+            <button onclick="loadView('translate')">Перевод</button>
+            <button onclick="loadView('settings')">Настройки</button>
+            <button onclick="loadView('instruction')">Инструкция</button>
+        </div>
+        <div class="btn-group">
+            <span class="group-label">🔍 Инструменты</span>
+            <button onclick="openSearch()">Поиск</button>
+            <button onclick="openScanner()">CyberScanner</button>
+        </div>
+        <div class="btn-group">
+            <span class="group-label">⚙️ Система</span>
+            <button onclick="window.open('/terminal', '_blank')">Терминал</button>
+            <button onclick="window.open('/status', '_blank')">Статус</button>
+            <button onclick="window.open('/map', '_blank')">Карта</button>
+            <button onclick="runAction('audit')">Аудит</button>
+                <button onclick="window.open('/fury', '_blank')">Фурия</button>
+            <button onclick="runAction('backup')">Бэкап</button>
+            <button onclick="window.open('/stop', '_blank')">Остановить</button>
+        </div>
+    </nav>
 
-        <!-- Экраны (view) -->
-        <div id="view-chat" class="view">
+    <main>
+        <div id="view-chat" class="view active">
             <h2>💬 Чат с Неоном</h2>
             <div class="chat-area" id="chat-log"><div class="msg sys">[SYSTEM] Rumix Shell запущен.</div></div>
-            <div class="input-area">
-                <input type="text" id="chat-input" placeholder="Напиши Неону..." onkeypress="if(event.key==='Enter')sendChat()">
-                <button onclick="sendChat()">➤</button>
-            </div>
+            <input id="chat-input" placeholder="Напиши сообщение..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="action" onclick="sendChat()">Отправить</button>
         </div>
 
         <div id="view-files" class="view">
             <h2>📁 Файлы</h2>
-            <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-                <button onclick="filesUp()" style="background:#4c1d95;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;min-height:44px">⬆ Вверх</button>
-                <button onclick="filesMakeZip()" style="background:#7c3aed;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;min-height:44px">📦 ZIP</button>
-                <button onclick="filesExtract()" style="background:#0891b2;color:#fff;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;min-height:44px">📤 Распаковать</button>
-                <input id="files-path" readonly style="flex:1;min-width:120px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px;font-size:12px">
-            </div>
-            <div class="files-list" id="files-list">Загрузка...</div>
+            <div class="panel"><div id="files-list">Загрузка...</div></div>
         </div>
 
         <div id="view-translate" class="view">
             <h2>🌐 Перевод</h2>
-            <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap">
-                <input id="trans-src" value="en" placeholder="en" style="width:60px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
-                <span style="align-self:center;color:#888">→</span>
-                <input id="trans-trg" value="ru" placeholder="ru" style="width:60px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
-                <input id="trans-text" placeholder="Текст для перевода..." style="flex:1;min-width:120px;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
-            </div>
-            <div style="display:flex;gap:6px;margin-bottom:8px">
-                <button onclick="doTranslate()" style="background:#7c3aed;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">Перевести</button>
-                <button onclick="doSpeak()" style="background:#0891b2;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">🔊 Сказать</button>
-            </div>
-            <div id="trans-result" style="color:#a78bfa;font-size:14px;white-space:pre-wrap;min-height:20px"></div>
-            <div style="margin-top:12px">
-                <input id="speak-text" placeholder="Текст для озвучки..." style="width:100%;background:#1a1a2e;color:#eee;border:1px solid #444;padding:10px;border-radius:6px;margin-bottom:6px">
-                <button onclick="doSpeak()" style="background:#0891b2;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">🔊 Сказать</button>
-            </div>
+            <div class="panel"><p>Введи текст в чат с Неоном для перевода.</p></div>
         </div>
 
         <div id="view-status" class="view">
             <h2>📊 Статус</h2>
-            <p>Регрессия: <span id="stat-regression">-</span></p>
-        </div>
-
-        <div id="view-logs" class="view">
-            <h2>📜 Лог</h2>
-            <pre id="log-area">Загрузка...</pre>
+            <div class="panel"><div id="status-view">Загрузка...</div></div>
         </div>
 
         <div id="view-settings" class="view">
             <h2>⚙ Настройки</h2>
-            <div style="margin-bottom:16px">
-                <h3 style="color:#a78bfa;margin-bottom:8px">Тема</h3>
-                <button onclick="toggleTheme()" id="theme-btn" style="background:#4c1d95;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">🌙 Тёмная / ☀️ Светлая</button>
-            </div>
-            <div style="margin-bottom:16px">
-                <h3 style="color:#a78bfa;margin-bottom:8px">PIN-код</h3>
-                <input id="new-pin" placeholder="Новый PIN (мин. 4)" style="width:100%;background:#1a1a2e;color:#eee;border:1px solid #444;padding:10px;border-radius:6px;margin-bottom:6px">
-                <button onclick="changePin()" style="background:#7c3aed;color:#fff;border:none;padding:10px 16px;border-radius:6px;cursor:pointer">Сменить PIN</button>
-                <div id="pin-msg" style="color:#a78bfa;margin-top:6px"></div>
-            </div>
-            <div style="margin-bottom:16px">
-                <h3 style="color:#a78bfa;margin-bottom:8px">Модель</h3>
-                <div id="model-info" style="color:#888">Загрузка...</div>
-            </div>
+            <div class="panel"><p>Скоро здесь будут настройки (темы, цвета, PIN).</p></div>
         </div>
 
         <div id="view-instruction" class="view">
             <h2>📖 Инструкция</h2>
-            <p>Инструкция (в разработке)</p>
+            <div class="panel"><p>Rumix — это дом. Чат, файлы, перевод, статус. Всё в одном.</p></div>
         </div>
     </main>
 
+    <div id="search-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;padding:12px;flex-direction:column">
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+            <input id="search-input" placeholder="Введи ник..." style="flex:1;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
+            <button onclick="runSearch()" style="background:#7c3aed;color:#fff;border:none;padding:8px 12px;border-radius:6px">🔍</button>
+            <button onclick="document.getElementById('search-modal').style.display='none'" style="background:#4c1d95;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:1rem;min-width:48px">← Назад</button>
+        </div>
+        <div id="search-results" style="background:#0a0a0a;color:#eee;padding:12px;border-radius:6px;min-height:100px;white-space:pre-wrap"></div>
+    </div>
+
     <script>
-        function openSearch(){ window.open('/maigret', '_blank'); }
-async function runSearch(){
-  const u = document.getElementById('search-input').value.trim();
-  if (u === '') return;
-  const res = document.getElementById('search-result');
-  res.textContent = 'Ищу...';
-  try {
-    const r = await fetch('/api/search', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username: u})});
-    const d = await r.json();
-    if (d.error) { res.textContent = 'Ошибка: ' + d.error; return; }
-    const found = d.data && d.data.results ? Object.keys(d.data.results).length : 0;
-    let out = 'Найдено: ' + found + ' сайтов\n\n';
-    if (d.data && d.data.results) { for (const [site, info] of Object.entries(d.data.results)) { if (info && info.url_user) out += '✅ ' + site + ': ' + info.url_user + '\n'; } }
-    res.textContent = out || 'Ничего не найдено';
-  } catch(e) { res.textContent = 'Ошибка: ' + e; }
-}
-
-async function doTranslate(){
-  const src = document.getElementById('trans-src').value || 'en';
-  const trg = document.getElementById('trans-trg').value || 'ru';
-  const text = document.getElementById('trans-text').value;
-  if (text === '') return;
-  const res = document.getElementById('trans-result');
-  res.textContent = 'Перевод...';
-  try {
-    const r = await fetch('/api/translate', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text, src, trg})});
-    const d = await r.json();
-    res.textContent = d.error ? ('Ошибка: ' + d.error) : d.result;
-  } catch(e) { res.textContent = 'Ошибка: ' + e; }
-}
-async function doSpeak(){
-  const text = document.getElementById('speak-text').value || document.getElementById('trans-result').textContent;
-  if (text === '') return;
-  try {
-    await fetch('/api/speak', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text})});
-  } catch(e) { alert('Ошибка: ' + e); }
-}
-
-function toggleTheme(){
-  const body = document.body;
-  const isLight = body.getAttribute('data-theme') === 'light';
-  body.setAttribute('data-theme', isLight ? 'dark' : 'light');
-  localStorage.setItem('rumix_theme', isLight ? 'dark' : 'light');
-}
-async function changePin(){
-  const input = document.getElementById('new-pin');
-  const msg = document.getElementById('pin-msg');
-  const pin = input.value.trim();
-  if (pin.length < 4) { msg.textContent = 'Минимум 4 символа'; msg.style.color = '#f66'; return; }
-  try {
-    const r = await fetch('/api/pin/set', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({pin})});
-    const d = await r.json();
-    if (d.ok) { msg.textContent = '✅ PIN изменён'; msg.style.color = '#4ade80'; input.value = ''; }
-    else { msg.textContent = '❌ ' + (d.error || 'Ошибка'); msg.style.color = '#f66'; }
-  } catch(e) { msg.textContent = '❌ ' + e; msg.style.color = '#f66'; }
-}
-async function fetchModel(){
-  try {
-    const r = await fetch('/api/status');
-    const d = await r.json();
-    document.getElementById('model-info').textContent = 'Neon: ' + (d.neon ? 'жив' : 'спит') + ', модель: ' + (d.model ? 'OK' : 'нет');
-  } catch(e) {}
-}
-
-function openScanner(){ window.open('http://127.0.0.1:8002', '_blank'); }
-
-function loadView(v) {
-            document.querySelectorAll('.view').forEach(e => e.classList.remove('active'));
-            const view = document.getElementById('view-' + v);
-            if (view) view.classList.add('active');
-            
-            const backBtn = document.getElementById('btn-back');
-            if (backBtn) backBtn.style.display = (v === 'menu') ? 'none' : 'block';
-
-            if (v === 'status') fetchStatus();
-        fetchModel();
-            if (v === 'logs') fetchLogs();
-            if (v === 'files') fetchFiles();
-        }
-
-        async function fetchStatus() {
-            try {
-                const r = await fetch('/api/status', {credentials: 'include'});
-                const d = await r.json();
-                document.getElementById('stat-regression').innerText = d.regression || 'N/A';
-                document.getElementById('status-dot').className = d.ok ? 'status-dot ok' : 'status-dot';
-            } catch(e) {}
-        }
-
-        async function fetchLogs() {
-            try {
-                const r = await fetch('/api/logs', {credentials: 'include'});
-                const d = await r.json();
-                document.getElementById('log-area').innerText = d.lines.join('\n');
-            } catch(e) {}
-        }
-
-        async function fetchFiles() {
-            try {
-                const r = await fetch('/api/files', {credentials: 'include'});
-                const d = await r.json();
-                const list = document.getElementById('files-list');
-                if (d.error) { list.innerText = d.error; return; }
-                list.innerHTML = d.items.map(f => `<div class="file-row ${f.type === 'dir' ? 'file-dir' : ''}">${f.name}</div>`).join('');
-            } catch(e) { document.getElementById('files-list').innerText = 'Ошибка'; }
+        function loadView(name) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            const el = document.getElementById('view-' + name);
+            if (el) el.classList.add('active');
         }
 
         async function sendChat() {
@@ -346,12 +130,15 @@ function loadView(v) {
             const log = document.getElementById('chat-log');
             log.innerHTML += `<div class="msg user">🧑 ${msg}</div>`;
             input.value = '';
+            log.scrollTop = log.scrollHeight;
+
             const thinkDiv = document.createElement('div');
             thinkDiv.className = 'msg sys';
             thinkDiv.id = 'thinking';
             thinkDiv.innerText = '🤖 Неон думает...';
             log.appendChild(thinkDiv);
             log.scrollTop = log.scrollHeight;
+
             try {
                 const r = await fetch('/api/chat', { method: 'POST', credentials: 'include', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg}) });
                 const d = await r.json();
@@ -366,21 +153,38 @@ function loadView(v) {
             }
         }
 
-        function showTerminalNotice() {
-    alert('🌊 Терминал отключён (безопасность).\nПричина: нет проверки сессии.\nСм. GRABLI #10.\nТерминал — через Termux: пункт «💻 Terminal (zsh)».');
-}
+        function openSearch() { document.getElementById('search-modal').style.display = 'flex'; }
+        async function runSearch() {
+            const u = document.getElementById('search-input').value.trim();
+            if (!u) return;
+            const r = document.getElementById('search-results');
+            r.textContent = 'Ищу...';
+            try {
+                const resp = await fetch('/api/search', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username: u})});
+                const d = await resp.json();
+                r.textContent = d.results || d.error || 'Пусто.';
+            } catch(e) { r.textContent = 'Ошибка: ' + e; }
+        }
+
+        function openScanner() { window.open('http://127.0.0.1:8002', '_blank'); }
+
         function runAction(action) { alert('Действие: ' + action); }
 
+        async function fetchStatus() {
+            try {
+                const r = await fetch('/api/status');
+                const d = await r.json();
+                const dot = document.getElementById('status-dot');
+                const text = document.getElementById('status-text');
+                if (d.ok) { dot.classList.add('ok'); text.textContent = 'OK'; }
+                else { dot.classList.remove('ok'); text.textContent = 'WARN'; }
+                const sv = document.getElementById('status-view');
+                if (sv) sv.textContent = JSON.stringify(d, null, 2);
+            } catch(e) {
+                document.getElementById('status-text').textContent = 'offline';
+            }
+        }
         fetchStatus();
     </script>
-
-<div id="search-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:9999;padding:12px;flex-direction:column">
-  <div style="display:flex;gap:6px;margin-bottom:8px">
-    <input id="search-input" placeholder="Введи ник..." style="flex:1;background:#1a1a2e;color:#eee;border:1px solid #444;padding:8px;border-radius:6px">
-    <button onclick="runSearch()" style="background:#7c3aed;color:#fff;border:none;padding:8px 12px;border-radius:6px">🔍</button>
-    <button onclick="document.getElementById('search-modal').style.display='none'" style="background:#4c1d95;color:#fff;border:none;padding:10px 16px;border-radius:8px;font-size:1rem;min-width:48px">← Назад</button>
-  </div>
-  <pre id="search-result" style="flex:1;background:#0f0a1e;color:#a78bfa;padding:8px;border-radius:6px;overflow:auto;font-size:12px">Введи ник и нажми 🔍</pre>
-</div>
 </body>
 </html>

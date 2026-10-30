@@ -45,8 +45,7 @@ nohup python app.py > "$LOG_FILE" 2>&1 &
 SHELL_PID=$!
 log "✅ Shell запущен (PID: $SHELL_PID)."
 sleep 3
-if curl -s -o /dev/null -o
-w "%{http_code}" http://127.0.0.1:$FLASK_PORT/api/status | grep -q "200"; then
+if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:$FLASK_PORT/api/status | grep -q "200"; then
   log "✅ Backend отвечает."
   termux-open-url http://127.0.0.1:$FLASK_PORT
 else

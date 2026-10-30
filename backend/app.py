@@ -56,6 +56,25 @@ def agent_status():
             pass
     return jsonify({'status': 'idle'})
 
+@app.route('/fury')
+def fury_page():
+    from pathlib import Path
+    return (Path(__file__).parent.parent / 'web' / 'fury.html').read_text(encoding='utf-8')
+
+@app.route('/api/fury', methods=['POST'])
+def api_fury():
+    import subprocess
+    try:
+        result = subprocess.run(
+            ['bash', str(Path.home() / 'rumix' / 'scripts' / 'fury.sh')],
+            capture_output=True, text=True, timeout=60
+        )
+        return jsonify({'ok': True, 'output': result.stdout + result.stderr})
+    except subprocess.TimeoutExpired:
+        return jsonify({'ok': False, 'output': '⏱ Фурия не ответила за 60 секунд.'})
+    except Exception as e:
+        return jsonify({'ok': False, 'output': f'❌ Ошибка: {e}'})
+
 @app.route('/stop')
 def stop_page():
     from pathlib import Path
