@@ -10,12 +10,27 @@
         #top-bar { background: #111a11; border-bottom: 1px solid #1e3a1e; padding: 5px; display: flex; justify-content: space-between; align-items: center; }
         #back-btn { background: #39ff14; color: #000; border: none; padding: 5px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
         #terminal { flex: 1; width: 100%; }
+    
+        #ctrl-panel { display: flex; gap: 4px; padding: 4px; background: #111a11; border-bottom: 1px solid #39ff14; flex-wrap: wrap; }
+        #ctrl-panel button { background: #39ff14; color: #000; border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; font-family: monospace; cursor: pointer; }
+        #ctrl-panel button:active { opacity: 0.7; }
     </style>
 </head>
 <body>
     <div id="top-bar">
         <span style="color:#fff; font-family:monospace;">Rumix Terminal</span>
         <button id="back-btn" onclick="window.location.href='/'">← В Shell</button>
+    </div>
+    <div id="ctrl-panel">
+        <button data-seq="\x1b">Esc</button>
+        <button data-seq="\t">Tab</button>
+        <button data-seq="\x03">Ctrl+C</button>
+        <button data-seq="\x04">Ctrl+D</button>
+        <button data-seq="\x1b[A">↑</button>
+        <button data-seq="\x1b[B">↓</button>
+        <button data-seq="\x1b[D">←</button>
+        <button data-seq="\x1b[C">→</button>
+        <button id="btn-clear">Clear</button>
     </div>
     <div id="terminal"></div>
     <script src="/static/vendor/xterm.js"></script>
@@ -36,10 +51,24 @@
 
         const socket = io();
 socket.on('connect_error', (err) => { term.write('\r\n[Ошибка Socket]: ' + err.message + '\r\n'); });
-socket.on('connect', () => { term.write('\r\n[Socket подключён]\r\n'); });
+socket.on('connect', () => {
+            socket.emit('terminal_start', {}); term.write('\r\n[Socket подключён]\r\n'); });
 term.write('[xterm.js загружен]\r\n');
 
         term.onData(data => { socket.emit('terminal_input', { data: data }); });
+
+        document.getElementById('btn-clear').addEventListener('click', () => {
+            term.clear();
+        });
+
+        document.querySelectorAll('#ctrl-panel button').forEach(btn => {
+            if (btn.id === 'btn-clear') return;
+            btn.addEventListener('click', () => {
+                const seq = btn.getAttribute('data-seq');
+                const map = {'\\x1b': '\x1b', '\\t': '\t', '\\x03': '\x03', '\\x04': '\x04', '\\x1b[A': '\x1b[A', '\\x1b[B': '\x1b[B', '\\x1b[D': '\x1b[D', '\\x1b[C': '\x1b[C'};
+                socket.emit('terminal_input', { data: map[seq] || seq });
+            });
+        });
         socket.on('terminal_output', (msg) => { console.log('OUT:', msg); term.write(msg.data); });
 
         window.addEventListener('resize', () => {

@@ -663,7 +663,7 @@ from delegates.terminal_ws import register_terminal_ws
 app.register_blueprint(chat_bp)
 
 # terminal_ws removed (security)
-# register_terminal_ws(socketio) — временно отключено (pty)
+register_terminal_ws(socketio)  # v2: session-check, per-session PTY, emit(to=sid)
 
 
 # === Синхронизация (GitHub) ===
