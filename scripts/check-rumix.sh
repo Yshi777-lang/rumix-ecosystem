@@ -14,7 +14,19 @@ if [[ "$1" == "--json" ]]; then
     OVERALL="false"
     if [ "$NEON_OK" = "true" ] && [ "$MODEL_OK" = "true" ] && [ "$SHELL_OK" = "true" ]; then OVERALL="true"; fi
 
-    echo "{\"ok\": $OVERALL, \"neon\": $NEON_OK, \"model\": $MODEL_OK, \"shell\": $SHELL_OK, \"regression\": \"15 PASS\", \"drift\": \"0 ошибок\", \"agents\": 7, \"loop\": \"v0.3\"}"
+    # Батарея и Wi-Fi (из termux-api)
+    BATTERY="unknown"
+    WIFI="unknown"
+    if command -v termux-battery-status &> /dev/null; then
+        BATTERY=$(termux-battery-status 2>/dev/null | grep -o '"percentage": [0-9]*' | head -1 | grep -o '[0-9]*')
+        [ -z "$BATTERY" ] && BATTERY="unknown"
+    fi
+    if command -v termux-wifi-connectioninfo &> /dev/null; then
+        WIFI=$(termux-wifi-connectioninfo 2>/dev/null | grep -o '"ip": "[^"]*"' | head -1 | cut -d'"' -f4)
+        [ -z "$WIFI" ] && WIFI="unknown"
+    fi
+
+    echo "{\"ok\": $OVERALL, \"neon\": $NEON_OK, \"model\": $MODEL_OK, \"shell\": $SHELL_OK, \"regression\": \"15 PASS\", \"drift\": \"0 ошибок\", \"agents\": 7, \"loop\": \"v0.3\", \"battery\": \"$BATTERY\", \"wifi\": \"$WIFI\"}"
     exit 0
 fi
 # --- /JSON ---

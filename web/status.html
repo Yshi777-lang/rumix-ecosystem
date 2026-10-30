@@ -40,7 +40,17 @@
             try {
                 const r = await fetch('/api/status');
                 const d = await r.json();
-                c.textContent = '📊 СТАТУС ДОМА\n' + '═'.repeat(40) + '\n' + JSON.stringify(d, null, 2);
+                let out = '📊 СТАТУС ДОМА\n' + '═'.repeat(40) + '\n';
+                out += `Shell: ${d.shell ? '✅' : '❌'}\n`;
+                out += `Неон: ${d.neon ? '✅' : '❌'}\n`;
+                out += `Модель: ${d.model ? '✅' : '❌'}\n`;
+                out += `Регрессия: ${d.regression || '?'}\n`;
+                out += `Drift: ${d.drift || '?'}\n`;
+                out += `Агенты: ${d.agents || '?'}\n`;
+                out += `Loop: ${d.loop || '?'}\n`;
+                if (d.battery) out += `🔋 Батарея: ${d.battery}%\n`;
+                if (d.wifi) out += `📶 Wi-Fi: ${d.wifi}\n`;
+                c.textContent = out;
             } catch(e) {
                 c.textContent = '❌ Ошибка: ' + e;
             }

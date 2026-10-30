@@ -25,6 +25,12 @@ def build_messages(agent, task):
     core = read("memory/core.md")
     profile = read(f"profiles/{agent}.md")
     state = read("memory/shared.md")
+    tasks = ""
+    tasks_path = BASE / "TASKS.md"
+    if tasks_path.exists():
+        tasks = tasks_path.read_text(encoding="utf-8").strip()
+        if tasks:
+            tasks = chr(10) + "=== ЧЕК-ЛИСТ (TASKS.md) ===" + chr(10) + tasks + chr(10)
 
     critical_start = (
         "=== КРИТИЧНО ==="
@@ -63,6 +69,7 @@ def build_messages(agent, task):
     user = (
         "=== SHARED STATE ===" + chr(10)
         + state
+        + (tasks if tasks else "")
         + chr(10) + chr(10) + "=== TASK ===" + chr(10)
         + task
     )
