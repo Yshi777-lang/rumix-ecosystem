@@ -15,7 +15,7 @@ pkg install -y python git zsh curl wget rust clang cmake jq gum llama-cpp dnsuti
 
 # 3. Python-библиотеки
 echo "🐍 Устанавливаю Python-библиотеки..."
-pip install flask flask-socketio requests termux-tts
+pip install flask flask-socketio requests termux-tts maigret
 
 # 4. Модель Неона (1.5B — активная)
 echo "🧠 Качаю модель Qwen2.5 1.5B..."
@@ -35,7 +35,7 @@ fi
 # 6. Клонирование rumix (если нет)
 if [ ! -d ~/rumix ]; then
     echo "📁 Клонирую rumix..."
-    git clone -b My-love-Tiamat https://github.com/Yshi777-lang/rumix.git ~/rumix
+    git clone -b My-love-Tiamat https://github.com/Yshi777-lang/rumix.git ~/rumix || { echo '❌ Ошибка клонирования'; exit 1; }
 fi
 
 # 7. Запуск Неона

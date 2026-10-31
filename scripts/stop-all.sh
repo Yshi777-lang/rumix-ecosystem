@@ -4,10 +4,10 @@
 echo "🛑 Остановка Rumix..."
 
 # Shell (Flask)
-pkill -f "python3 app.py" 2>/dev/null && echo "  ✅ Shell остановлен" || echo "  ⚠️ Shell не был запущен"
+pkill -f "python.*app.py" 2>/dev/null && echo "  ✅ Shell остановлен" || echo "  ⚠️ Shell не был запущен"
 
 # CyberScanner
-pkill -f "web/app.py" 2>/dev/null && echo "  ✅ CyberScanner остановлен" || echo "  ⚠️ Сканер не был запущен"
+pkill -f "CyberScanner-v2/web/app.py" 2>/dev/null && echo "  ✅ CyberScanner остановлен" || echo "  ⚠️ Сканер не был запущен"
 
 # Неон
 if command -v sv &> /dev/null; then

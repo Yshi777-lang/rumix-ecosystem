@@ -35,14 +35,18 @@ def index():
 
 @app.before_request
 def check_auth():
+    # CSRF: проверка Origin для POST/PUT/DELETE/PATCH
+    if request.method in ('POST', 'PUT', 'DELETE', 'PATCH'):
+        origin = request.headers.get('Origin')
+        if origin and origin not in ('http://127.0.0.1:8001', 'http://localhost:8001'):
+            return jsonify({'error': 'CSRF: чужой Origin'}), 403
+
     # Разрешаем без авторизации только вход и статус
     if request.path.startswith('/static/') or request.path in ['/api/pin/check', '/api/pin/status', '/api/status', '/api/agent/status', '/', '/terminal']:
         return
-    # Если PIN не установлен — пускаем всех (первый запуск)
-    if not os.path.exists(PIN_FILE):
-        return
-    # Всё остальное — только с сессией
-    return  # проверка отключена (временно)
+    # PIN-авторизация отключена (локальный доступ, auth не нужен).
+    # Если понадобится — верните проверку session['logged_in'] здесь.
+    return
 
 @app.route('/api/agent/status')
 def agent_status():
@@ -64,6 +68,7 @@ def fury_page():
 @app.route('/api/fury', methods=['POST'])
 def api_fury():
     import subprocess
+    from pathlib import Path
     try:
         result = subprocess.run(
             ['bash', str(Path.home() / 'rumix' / 'scripts' / 'fury.sh')],
@@ -84,17 +89,26 @@ def stop_page():
 def api_stop():
     import subprocess
     results = []
+    ok = True
     try:
-        subprocess.run(['pkill', '-f', 'web/app.py'], capture_output=True)
-        results.append('CyberScanner: остановлен')
+        r = subprocess.run(['pkill', '-f', 'CyberScanner-v2/web/app.py'], capture_output=True)
+        if r.returncode == 0:
+            results.append('CyberScanner: остановлен')
+        else:
+            results.append('CyberScanner: не был запущен')
     except Exception as e:
+        ok = False
         results.append(f'CyberScanner: {e}')
     try:
-        subprocess.run(['pkill', '-f', 'llama-server'], capture_output=True)
-        results.append('Неон: остановлен')
+        r = subprocess.run(['pkill', '-f', 'llama-server'], capture_output=True)
+        if r.returncode == 0:
+            results.append('Неон: остановлен')
+        else:
+            results.append('Неон: не был запущен')
     except Exception as e:
+        ok = False
         results.append(f'Неон: {e}')
-    return jsonify({'ok': True, 'results': results})
+    return jsonify({'ok': ok, 'results': results})
 
 @app.route('/map')
 def map_page():
@@ -407,6 +421,7 @@ def files_read():
     try:
         from core.fs.registry import FsRegistry
         from core.fs.fs_exception import FsException
+        from core.bridge.file_gate import check_file
         path = request.args.get('path')
         if not path:
             return jsonify({'error': 'path required'}), 400
