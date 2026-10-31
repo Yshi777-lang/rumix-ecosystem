@@ -21,4 +21,16 @@ My-love-Tiamat.
 - `bash agents/tests/run.sh` — Regression (15 PASS).
 - `bash scripts/check-config-drift.sh` — проверка согласованности.
 
+## 📸 Скриншоты
+
+### Логотипы (дракон Rumix)
+![Дракон 1](docs/screenshots/01_rumix_dragon_square.png)
+![Дракон 2](docs/screenshots/02_rumix_circular_dragon.png)
+![Дракон 5](docs/screenshots/05_rumix_cute_dragon_mascot.png)
+![Дракон 8](docs/screenshots/08_rumix_cosmic_dragon-1.png)
+
+### Shell, сканер, терминал
+![Shell](docs/screenshots/Screenshot_20261031-074855.png)
+![Сканер](docs/screenshots/Screenshot_20261031-075012.png)
+
 **Тиамат была здесь. ❤️**
