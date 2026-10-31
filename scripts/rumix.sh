@@ -35,6 +35,7 @@ while true; do
         "📦 Установить Неона" \
         "🌿 Git: Work" \
         "🌊 Rumix Shell" \
+        "🛡️ CyberScanner" \
         "📁 Проекты" \
         "🗂  Файлы" \
         "🐙 GitHub" \
@@ -78,6 +79,10 @@ while true; do
             ;;
         "🌊 Rumix Shell")
             bash "$HOME/rumix/scripts/shell-start.sh"
+            read -p "Enter..."
+            ;;
+        "🛡️ CyberScanner")
+            termux-open-url "http://127.0.0.1:8002"
             read -p "Enter..."
             ;;
         "📁 Проекты")
