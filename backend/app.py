@@ -115,6 +115,19 @@ def status_page():
     from pathlib import Path
     return (Path(__file__).parent.parent / 'web' / 'status.html').read_text(encoding='utf-8')
 
+@app.route('/api/neon/start', methods=['POST'])
+def neon_start():
+    import subprocess
+    from pathlib import Path
+    script = Path.home() / 'rumix' / 'scripts' / 'neon.sh'
+    if not script.exists():
+        return jsonify({'ok': False, 'error': 'neon.sh не найден'})
+    try:
+        result = subprocess.run(['bash', str(script), 'start'], capture_output=True, text=True, timeout=30)
+        return jsonify({'ok': result.returncode == 0, 'output': result.stdout})
+    except Exception as e:
+        return jsonify({'ok': False, 'error': str(e)})
+
 @app.route('/api/status')
 def status():
     script_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../scripts/check-rumix.sh')

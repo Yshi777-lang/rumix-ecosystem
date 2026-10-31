@@ -9,7 +9,7 @@ if [[ "$1" == "--json" ]]; then
     if [ -f "$HOME/models/qwen2.5-1.5b-instruct-q4_k_m.gguf" ] || [ -f "$HOME/models/qwen3-0.6b-q4.gguf" ]; then MODEL_OK="true"; fi
 
     SHELL_OK="false"
-    if pgrep -f "python3 app.py" >/dev/null; then SHELL_OK="true"; fi
+    if pgrep -f "python.*app.py" >/dev/null; then SHELL_OK="true"; fi
 
     OVERALL="false"
     if [ "$NEON_OK" = "true" ] && [ "$MODEL_OK" = "true" ] && [ "$SHELL_OK" = "true" ]; then OVERALL="true"; fi

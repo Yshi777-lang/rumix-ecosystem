@@ -65,6 +65,7 @@
             <span class="group-label">⚙️ Система</span>
             <button onclick="window.open('/terminal', '_blank')">Терминал</button>
             <button onclick="window.open('/status', '_blank')">Статус</button>
+                <button onclick="wakeNeon()">🤖 Разбудить</button>
             <button onclick="window.open('/map', '_blank')">Карта</button>
             <button onclick="runAction('audit')">Аудит</button>
                 <button onclick="window.open('/fury', '_blank')">Фурия</button>
@@ -167,6 +168,14 @@
         }
 
         function openScanner() { window.open('http://127.0.0.1:8002', '_blank'); }
+
+        async function wakeNeon() {
+            try {
+                const r = await fetch('/api/neon/start', {method: 'POST'});
+                const d = await r.json();
+                alert(d.ok ? '✅ Неон проснулся!' : '❌ ' + (d.error || 'Ошибка'));
+            } catch(e) { alert('Ошибка: ' + e); }
+        }
 
         function runAction(action) { alert('Действие: ' + action); }
 
