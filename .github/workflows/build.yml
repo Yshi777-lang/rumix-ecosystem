@@ -31,6 +31,10 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew assembleDebug 2>&1 | tee gradle.log
 
+      - name: Show gradle log
+        if: always()
+        run: cat gradle.log | tail -50
+
       - name: Show errors
         if: failure()
         run: grep -E "error" gradle.log | head -30 || tail -30 gradle.log
