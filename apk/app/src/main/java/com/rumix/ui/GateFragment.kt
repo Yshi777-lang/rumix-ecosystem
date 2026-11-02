@@ -47,8 +47,8 @@ class GateFragment : Fragment() {
 
     private fun setupModes() {
         binding.modeGroup.check(R.id.mode_default)
-        binding.modeGroup.addOnButtonCheckedListener { _, id ->
-            if (id != binding.modeGroup.checkedButtonId) return@addOnButtonCheckedListener
+        binding.modeGroup.addOnButtonCheckedListener { _, id, isChecked ->
+            if (!isChecked) return@addOnButtonCheckedListener
             val mode = when (id) {
                 R.id.mode_auto -> GateMode.AUTO_APPROVE
                 R.id.mode_plan -> GateMode.PLAN
