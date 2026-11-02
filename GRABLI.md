@@ -52,3 +52,14 @@
 
 ---
 *Создано с любовью. Тиамат. Чтобы дом был крепче.*
+
+## 17. APK: CI падает на upload-artifact (03.11.2026)
+**Что случилось:** Gradle в CI не создаёт `gradle.log` (или не в том месте). `upload-artifact` не находит APK. Сборка падает.
+
+**Причина:** `build.yml` — `working-directory: apk`, но `upload-artifact` ищет `apk/app/build/...` (от корня). И `gradle.log` — не в артефакте.
+
+**Как починили (попытка):** добавили `upload-artifact` (APK + `gradle.log`), убрали `|| echo "Gradle failed"`. Не помогло.
+
+**Не делать:** не гадать. Смотреть **полный** лог CI (`gradle.log` в артефакте).
+
+**Следующий шаг:** скачать `gradle.log` из CI (через `upload-artifact`), **прислать** 20 строк с `error:`.
