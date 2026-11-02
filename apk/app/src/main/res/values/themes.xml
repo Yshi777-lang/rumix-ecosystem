@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Rumix" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/rumix_primary</item>
+        <item name="colorOnPrimary">@color/rumix_on_primary</item>
+        <item name="colorSecondary">@color/rumix_primary</item>
+        <item name="colorOnSecondary">@color/rumix_on_primary</item>
+        <item name="colorSurface">@color/rumix_surface</item>
+        <item name="colorOnSurface">@color/rumix_text</item>
+        <item name="android:colorBackground">@color/rumix_bg</item>
+        <item name="colorOnBackground">@color/rumix_text</item>
+        <item name="colorOutline">@color/rumix_outline</item>
+        <item name="colorError">@color/rumix_danger</item>
+        <item name="android:statusBarColor">@color/rumix_bg</item>
+        <item name="android:navigationBarColor">@color/rumix_bg</item>
+        <item name="android:windowBackground">@color/rumix_bg</item>
+    </style>
+</resources>
