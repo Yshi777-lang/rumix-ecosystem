@@ -2,7 +2,7 @@
 # TEST-E2E-01 — Корректный сценарий проходит end-to-end.
 # Цепочка: Intent → Schema → Capability → Permission → Tool → Evidence → Validation → Result → Verification.
 
-cd "$HOME/rumix/agents" || exit 1
+cd "${RUMIX_ROOT:-$HOME/rumix}/agents" || exit 1
 
 python3 -c "
 import sys; sys.path.insert(0, '.')

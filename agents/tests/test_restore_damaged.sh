@@ -28,7 +28,7 @@ cp "$REAL_BACKUP/zshrc" "$TEST_DIR/" 2>/dev/null || true
 echo "DAMAGED_FOR_TEST" >> "$TEST_DIR/zshrc"
 
 # Запускаем restore.sh
-cd "$HOME/rumix/scripts"
+cd "${RUMIX_ROOT:-$HOME/rumix}/scripts"
 RC=0
 bash restore.sh > /dev/null 2>&1 || RC=$?
 

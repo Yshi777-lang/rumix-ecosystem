@@ -2,7 +2,7 @@
 # TEST-E2E-04 — Ошибка tool не маскируется под успех.
 # Проверяет: если tool вернул error, он сохраняется в evidence с confidence=low.
 
-cd "$HOME/rumix/agents" || exit 1
+cd "${RUMIX_ROOT:-$HOME/rumix}/agents" || exit 1
 
 python3 -c "
 import sys; sys.path.insert(0, '.')

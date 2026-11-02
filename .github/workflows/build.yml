@@ -4,14 +4,12 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    defaults:
-      run:
-        working-directory: apk
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,37 +17,50 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
+          cache: gradle
 
       - name: Accept Android SDK licenses
-        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+        working-directory: apk
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
 
       - name: Make gradlew executable
-        run: chmod +x ./gradlew || true
+        working-directory: apk
+        run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew assembleDebug 2>&1 | tee gradle.log
+      - name: Build APK
+        working-directory: apk
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew --no-daemon clean assembleDebug 2>&1 | tee gradle.log
 
-      - name: Show gradle log
+      - name: Verify APK
+        shell: bash
+        run: |
+          APK="apk/app/build/outputs/apk/debug/app-debug.apk"
+          if [ ! -s "$APK" ]; then
+            echo "::error::APK missing or empty: $APK"
+            exit 1
+          fi
+          ls -lh "$APK"
+
+      - name: Show Gradle log
         if: always()
-        run: cat gradle.log | tail -50
-
-      - name: Show errors
-        if: failure()
-        run: grep -E "error" gradle.log | head -30 || tail -30 gradle.log
-
-      - name: Show APK
-        run: find app/build -name "*.apk" 2>/dev/null || echo "NO APK FOUND"
+        run: |
+          if [ -f apk/gradle.log ]; then
+            tail -80 apk/gradle.log
+          fi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: rumix-debug-apk
           path: |
-            apk/app/build/outputs/apk/debug/*.apk
+            apk/app/build/outputs/apk/debug/app-debug.apk
             apk/gradle.log
-          if-no-files-found: warn
+          if-no-files-found: error
 
       - name: Create Release
         if: success()
@@ -57,6 +68,6 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}
           name: Rumix build ${{ github.run_number }}
-          files: apk/app/build/outputs/apk/debug/*.apk
+          files: apk/app/build/outputs/apk/debug/app-debug.apk
           draft: false
           prerelease: true

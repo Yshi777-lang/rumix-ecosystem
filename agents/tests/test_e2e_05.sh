@@ -2,7 +2,7 @@
 # TEST-E2E-05 — Некорректный ответ не становится подтверждённым фактом.
 # Проверяет: Evidence Validator отклоняет Claim без Evidence.
 
-cd "$HOME/rumix/agents/runtime" || exit 1
+cd "${RUMIX_ROOT:-$HOME/rumix}/agents/runtime" || exit 1
 
 python3 -c "
 import sys; sys.path.insert(0, '.')

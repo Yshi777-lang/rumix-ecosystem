@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # TEST-E2E-02 — Отказ в разрешении не запускает tool.
 
-cd "$HOME/rumix/agents" || exit 1
+cd "${RUMIX_ROOT:-$HOME/rumix}/agents" || exit 1
 
 python3 -c "
 import sys; sys.path.insert(0, '.')

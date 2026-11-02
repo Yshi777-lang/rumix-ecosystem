@@ -2,7 +2,7 @@
 # TEST-E2E-03 — Недоступная capability → структурный отказ.
 # Проверяет: call_tool блокирует tool, если capability недоступна.
 
-cd "$HOME/rumix/agents" || exit 1
+cd "${RUMIX_ROOT:-$HOME/rumix}/agents" || exit 1
 
 python3 -c "
 import sys; sys.path.insert(0, '.')

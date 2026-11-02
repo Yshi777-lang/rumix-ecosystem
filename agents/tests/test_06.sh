@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # test_06 — Evidence Validator: SUPPORTED / UNSUPPORTED / NO_EVIDENCE / CONFLICT
 
-cd "$HOME/rumix/agents/runtime" || exit 1
+cd "${RUMIX_ROOT:-$HOME/rumix}/agents/runtime" || exit 1
 
 python3 -c "
 import sys

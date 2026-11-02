@@ -2,7 +2,7 @@
 # TEST-E2E-06 — После перезапуска Loop сохраняет состояние.
 # Проверяет: state.json записывается и читается корректно.
 
-cd "$HOME/rumix/loop" || exit 1
+cd "${RUMIX_ROOT:-$HOME/rumix}/loop" || exit 1
 
 # Уборка
 rm -f state.json queue.txt
