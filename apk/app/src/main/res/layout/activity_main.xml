@@ -52,8 +52,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/rumix_surface"
-        app:itemIconTint="@color/nav_tint"
-        app:itemTextColor="@color/nav_tint"
+        app:itemIconTint="@color/rumix_primary"
+        app:itemTextColor="@color/rumix_primary"
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav" />
 </LinearLayout>
