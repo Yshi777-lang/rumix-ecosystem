@@ -29,7 +29,7 @@ jobs:
         run: chmod +x ./gradlew || true
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug 2>&1 | tee gradle.log || echo "Gradle failed"
+        run: ./gradlew assembleDebug 2>&1 | tee gradle.log
 
       - name: Show errors
         if: failure()
@@ -37,6 +37,13 @@ jobs:
 
       - name: Show APK
         run: find app/build -name "*.apk" 2>/dev/null || echo "NO APK FOUND"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: rumix-debug-apk
+          path: apk/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
 
       - name: Create Release
         if: success()
