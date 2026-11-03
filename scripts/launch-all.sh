@@ -66,12 +66,17 @@ else
   log "❌ Backend не отвечает."
 fi
 
-# 4. CyberScanner (8002)
+# 4. CyberScanner (8002) — только если памяти достаточно
 if [ -f "$WORK_DIR/archive/CyberScanner/web/app.py" ]; then
-  log "🛡️ Запуск CyberScanner..."
-  cd "$WORK_DIR/archive/CyberScanner"
-  nohup python3 web/app.py > scanner.log 2>&1 &
-  log "✅ CyberScanner запущен (PID: $!)."
+  FREE_MB=$(free -m | awk '/Mem:/ {print $7}')
+  if [ "$FREE_MB" -gt 500 ]; then
+    log "🛡️ Запуск CyberScanner... (свободно ${FREE_MB}MB)"
+    cd "$WORK_DIR/archive/CyberScanner"
+    nohup python3 web/app.py > scanner.log 2>&1 &
+    log "✅ CyberScanner запущен (PID: $!)."
+  else
+    log "⚠️ Мало памяти (${FREE_MB}MB). CyberScanner не запущен."
+  fi
 else
   log "⚠️ CyberScanner не найден."
 fi
