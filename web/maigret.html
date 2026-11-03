@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maigret — Поиск по нику</title>
+    <style>
+        :root {
+            --bg: #0a0f0a;
+            --surface: #111a11;
+            --primary: #39ff14;
+            --on-primary: #000;
+            --outline: #1e3a1e;
+            --text: #c8ffc8;
+            --danger: #ff4444;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+        }
+        h1 { color: var(--primary); text-shadow: 0 0 10px var(--primary); margin-bottom: 8px; font-size: 1.5rem; }
+        .subtitle { color: #888; font-size: 12px; margin-bottom: 16px; }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 8px;
+        }
+        button {
+            background: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            min-height: 44px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+        }
+        button:disabled { opacity: 0.4; cursor: not-allowed; }
+        #console {
+            background: #000;
+            border: 1px solid var(--outline);
+            border-radius: 6px;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            font-size: 12px;
+            margin: 12px 0;
+            white-space: pre-wrap;
+            color: var(--primary);
+        }
+        .result { padding: 4px 0; border-bottom: 1px solid var(--outline); }
+        .result a { color: var(--primary); text-decoration: none; }
+        .result a:hover { text-decoration: underline; }
+        #back-btn {
+            background: var(--surface);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <button id="back-btn" onclick="window.location.href='/'">← В Shell</button>
+    <h1>🔍 Maigret</h1>
+    <p class="subtitle">Поиск по нику · 3000+ сайтов · Non-destructive</p>
+
+    <input type="text" id="username" placeholder="Введи ник (например: zuck)" />
+    <button id="btn-search" onclick="runSearch()">🔍 Искать</button>
+    <button id="btn-clear" onclick="clearConsole()">✖ Очистить</button>
+
+    <div id="console">[SYSTEM] Готов. Введи ник и нажми «Искать».</div>
+
+    <script>
+        const consoleEl = document.getElementById('console');
+        const btnSearch = document.getElementById('btn-search');
+
+        function log(msg) {
+            consoleEl.textContent += '\n' + msg;
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        function clearConsole() {
+            consoleEl.textContent = '[SYSTEM] Очищено.';
+        }
+
+        async function runSearch() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) { log('[!] Введи ник.'); return; }
+            log('[>] Ищу: ' + username);
+            btnSearch.disabled = true;
+            try {
+                const r = await fetch('/api/search', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({username})
+                });
+                const d = await r.json();
+                if (d.error) { log('[!] ' + d.error); return; }
+                const results = d.data && d.data.results ? d.data.results : {};
+                const found = Object.keys(results).length;
+                log('[+] Найдено: ' + found + ' сайтов');
+                for (const [site, info] of Object.entries(results)) {
+                    if (info && info.url_user) {
+                        log('  ✅ ' + site + ': ' + info.url_user);
+                    }
+                }
+            } catch(e) {
+                log('[!] Ошибка: ' + e);
+            } finally {
+                btnSearch.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="rumix_bg">#0A0F0A</color>
+    <color name="rumix_surface">#111A11</color>
+    <color name="rumix_surface_hi">#16221A</color>
+    <color name="rumix_primary">#39FF14</color>
+    <color name="rumix_on_primary">#000000</color>
+    <color name="rumix_outline">#1E3A1E</color>
+    <color name="rumix_text">#C8FFC8</color>
+    <color name="rumix_text_dim">#6E8A6E</color>
+    <color name="rumix_danger">#FF4444</color>
+    <color name="rumix_warn">#FFB300</color>
+    <color name="rumix_info">#38BDF8</color>
+    <color name="rumix_bubble_user">#1A2A1A</color>
+    <color name="rumix_bubble_neon">#0F1E0F</color>
+</resources>

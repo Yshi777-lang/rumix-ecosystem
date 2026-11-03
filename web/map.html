@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rumix · Карта дома</title>
+    <style>
+        :root {
+            --bg: #0a0f0a;
+            --surface: #111a11;
+            --primary: #39ff14;
+            --on-primary: #000;
+            --outline: #1e3a1e;
+            --text: #c8ffc8;
+            --danger: #ff4444;
+            --warn: #ffaa00;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--outline);
+            padding-bottom: 12px;
+        }
+        header h1 {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary);
+            font-size: 1.5rem;
+            flex: 1;
+        }
+        .subtitle {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 16px;
+        }
+        button {
+            background: var(--primary);
+            color: var(--on-primary);
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            min-height: 44px;
+            margin-right: 6px;
+            margin-bottom: 6px;
+            transition: all 0.2s;
+        }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        button.secondary {
+            background: var(--surface);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        button.danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 8px;
+            outline: none;
+        }
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 5px var(--primary);
+        }
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .console {
+            background: #000;
+            border: 1px solid var(--outline);
+            border-radius: 6px;
+            padding: 10px;
+            min-height: 200px;
+            max-height: 60vh;
+            overflow-y: auto;
+            font-size: 12px;
+            white-space: pre-wrap;
+            color: var(--primary);
+        }
+        .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+        .summary { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+        .summary div {
+            padding: 6px 12px;
+            background: var(--surface);
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .finding {
+            background: var(--surface);
+            border-left: 4px solid var(--outline);
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .finding.critical { border-left-color: #ff0000; }
+        .finding.high { border-left-color: #ff4444; }
+        .finding.medium { border-left-color: #ffaa00; }
+        .finding.low { border-left-color: #00aaff; }
+        .finding.info { border-left-color: #888; }
+        .sev { font-weight: bold; text-transform: uppercase; font-size: 11px; }
+        a { color: var(--primary); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .fade-in { animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="secondary" onclick="window.location.href='/'">← В Shell</button>
+        <h1>Карта дома</h1>
+    </header>
+    <p class="subtitle">RUMIX_MAP.md — структура дома</p>
+
+    <div id="app">
+        
+    <div class="panel fade-in">
+        <div class="console" id="map-console">[SYSTEM] Загрузка карты...</div>
+    </div>
+
+    </div>
+
+    <script>
+        function log(id, msg) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent += '\n' + msg;
+            el.scrollTop = el.scrollHeight;
+        }
+        function clearLog(id) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = '[SYSTEM] Очищено.';
+        }
+        async function api(path, method = 'GET', body = null) {
+            const opts = { method, credentials: 'include', headers: {} };
+            if (body) {
+                opts.headers['Content-Type'] = 'application/json';
+                opts.body = JSON.stringify(body);
+            }
+            const r = await fetch(path, opts);
+            return await r.json();
+        }
+    </script>
+    
+        async function loadMap() {
+            const c = document.getElementById('map-console');
+            try {
+                const r = await fetch('/api/map');
+                const d = await r.json();
+                c.textContent = d.content || 'Пустая карта.';
+            } catch(e) {
+                c.textContent = '❌ Ошибка: ' + e;
+            }
+        }
+        loadMap();
+
+</body>
+</html>

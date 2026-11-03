@@ -15,6 +15,21 @@ log() {
 
 log "=== ЗАПУСК RUMIX ALL ==="
 
+# Ждём, пока память освободится (макс 10 сек)
+log "💤 Ожидание освобождения памяти..."
+for i in {1..10}; do
+  FREE_MB=$(free -m | awk '/Mem:/ {print $7}')
+  if [ "$FREE_MB" -gt 800 ]; then
+    log "✅ Память свободна (${FREE_MB}MB)."
+    break
+  fi
+  sleep 1
+done
+
+if [ "$FREE_MB" -le 800 ]; then
+  log "⚠️ Памяти всё ещё мало (${FREE_MB}MB). Возможны сбои."
+fi
+
 # 1. Память (не убиваем скрипт, если не вышло)
 log "🧠 Подготовка памяти..."
 if [ -d "$RUMIX_DIR/rag" ]; then
