@@ -4,7 +4,8 @@
 # Список проектов: имя|путь|описание
 PROJECTS=(
     "🌿 Work (душа дома)|$HOME/Work|Ядро, летопись, карты"
-    "🧬 Rumix (тело дома)|$HOME/rumix|Терминал, скрипты, Agent Runtime"
+    "🧬 Rumix-ecosystem (главный дом)|$HOME/rumix-ecosystem|Экосистема, код, скрипты, модули"
+    "🧬 Rumix (тело дома, архив)|$HOME/rumix|Терминал, скрипты (старый дом)"
     "🧪 Tiamat-ai- (лаборатория)|$HOME/Tiamat-ai-|Эксперименты, NobodyWho, APK"
     "🤖 Deepseek-API|$HOME/Deepseek-API|API эксперимент (отложен)"
     "📦 models|$HOME/models|Локальные LLM (Qwen 0.6B, 1.5B)"
