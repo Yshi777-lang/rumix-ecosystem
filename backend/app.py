@@ -1,4 +1,6 @@
 from flask import Flask, send_from_directory, jsonify, request, session
+import hmac
+import secrets
 import subprocess
 import json
 import os
@@ -8,10 +10,37 @@ _sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from core.bridge.file_gate import check_file
 
+PORT = 8001
+ALLOWED_ORIGINS = {f"http://127.0.0.1:{PORT}", f"http://localhost:{PORT}"}
+
+
+def _secret(filename: str, env: str) -> str:
+    """Секрет: env → ~/<filename> (0600) → сгенерировать один раз."""
+    val = (os.environ.get(env) or "").strip()
+    if val:
+        return val
+    path = Path.home() / filename
+    try:
+        val = path.read_text(encoding="utf-8").strip()
+        if val:
+            return val
+    except OSError:
+        pass
+    val = secrets.token_urlsafe(32)
+    try:
+        path.write_text(val + "\n", encoding="utf-8")
+        os.chmod(path, 0o600)
+        print(f"🔑 создан {path} (0600)")
+    except OSError as e:
+        print(f"⚠️ не смог сохранить {path}: {e} — токен только на этот запуск")
+    return val
+
+
 app = Flask(__name__)
-app.secret_key = "rumix_secret_key_2026"
+app.secret_key = _secret(".rumix_secret", "RUMIX_SECRET")
+API_TOKEN = _secret(".rumix_token", "RUMIX_TOKEN")
 from flask_socketio import SocketIO
-socketio = SocketIO(app, cors_allowed_origins=["http://127.0.0.1:8001", "http://localhost:8001"], async_mode="threading")
+socketio = SocketIO(app, cors_allowed_origins=sorted(ALLOWED_ORIGINS), async_mode="threading")
 
 # Ядро файлового менеджера (порт из Twig)
 import sys as _sys
@@ -48,20 +77,40 @@ def index():
     return send_from_directory('../web', 'index.html')
 
 
+PUBLIC_PATHS = {'/api/status', '/api/agent/status', '/api/bridge/health', '/api/pin/status'}
+
+
+def _token_ok() -> bool:
+    for candidate in (
+        request.headers.get('X-Rumix-Token'),
+        request.cookies.get('rumix_token'),
+        request.args.get('t'),
+    ):
+        if candidate and hmac.compare_digest(candidate, API_TOKEN):
+            return True
+    return False
+
+
 @app.before_request
 def check_auth():
-    # CSRF: проверка Origin для POST/PUT/DELETE/PATCH
-    if request.method in ('POST', 'PUT', 'DELETE', 'PATCH'):
-        origin = request.headers.get('Origin')
-        if origin and origin not in ('http://127.0.0.1:8001', 'http://localhost:8001'):
-            return jsonify({'error': 'CSRF: чужой Origin'}), 403
+    origin = request.headers.get('Origin')
+    if request.method in ('POST', 'PUT', 'DELETE', 'PATCH') and origin and origin not in ALLOWED_ORIGINS:
+        return jsonify({'error': f'CSRF: чужой Origin ({origin})'}), 403
 
-    # Разрешаем без авторизации только вход и статус
-    if request.path.startswith('/static/') or request.path in ['/api/pin/check', '/api/pin/status', '/api/status', '/api/agent/status', '/', '/terminal']:
+    path = request.path
+    if path in PUBLIC_PATHS or not path.startswith('/api/'):
         return
-    # PIN-авторизация отключена (локальный доступ, auth не нужен).
-    # Если понадобится — верните проверку session['logged_in'] здесь.
-    return
+    if _token_ok():
+        return
+    return jsonify({'error': 'нет токена', 'hint': 'X-Rumix-Token или ?t=<токен>'}), 401
+
+
+@app.after_request
+def _bootstrap_cookie(resp):
+    given = request.args.get('t')
+    if given and hmac.compare_digest(given, API_TOKEN):
+        resp.set_cookie('rumix_token', API_TOKEN, httponly=True, samesite='Lax', max_age=60 * 60 * 24 * 365)
+    return resp
 
 @app.route('/api/agent/status')
 def agent_status():
@@ -98,27 +147,22 @@ def stop_page():
 
 @app.route('/api/stop', methods=['POST'])
 def api_stop():
-    import subprocess
+    script = Path.home() / 'rumix-ecosystem' / 'scripts' / 'svc-manager.sh'
+    if not script.exists():
+        script = Path(__file__).resolve().parent.parent / 'scripts' / 'svc-manager.sh'
     results = []
     ok = True
-    try:
-        r = subprocess.run(['pkill', '-f', 'CyberScanner-v2/web/app.py'], capture_output=True)
-        if r.returncode == 0:
-            results.append('CyberScanner: остановлен')
-        else:
-            results.append('CyberScanner: не был запущен')
-    except Exception as e:
-        ok = False
-        results.append(f'CyberScanner: {e}')
-    try:
-        r = subprocess.run(['pkill', '-f', 'llama-server'], capture_output=True)
-        if r.returncode == 0:
-            results.append('Неон: остановлен')
-        else:
-            results.append('Неон: не был запущен')
-    except Exception as e:
-        ok = False
-        results.append(f'Неон: {e}')
+    if not script.exists():
+        return jsonify({'ok': False, 'results': ['svc-manager.sh не найден']})
+    for svc in ('scanner', 'neon'):
+        try:
+            r = subprocess.run(['bash', str(script), 'stop', svc],
+                               capture_output=True, text=True, timeout=20)
+            out = (r.stdout + r.stderr).strip().splitlines()
+            results.append(f'{svc}: ' + (out[-1] if out else f'код {r.returncode}'))
+        except Exception as e:
+            ok = False
+            results.append(f'{svc}: {e}')
     return jsonify({'ok': ok, 'results': results})
 
 @app.route('/map')
@@ -801,4 +845,4 @@ def api_integrity():
 
 
 if __name__ == '__main__':
-    socketio.run(app, host='127.0.0.1', port=8001, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='127.0.0.1', port=PORT, allow_unsafe_werkzeug=True)
