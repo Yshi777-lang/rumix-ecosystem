@@ -636,3 +636,7 @@ EOF
 - `sync-all.sh` теперь копирует **все** файлы из `rumix` в `rumix-ecosystem`.
 - В `rumix-ecosystem` переехали `apk/`, `agents/`, `core/`, `scripts/`, `loop/`, `rag/`, `web/` и `backend/`.
 - **Значение:** `rumix-ecosystem` теперь — полная копия дома. Если `rumix` сгорит, дом поднимется из экосистемы.
+
+## Победа 190: neon.sh — пульт для runit (04.11.2026)
+- `neon.sh` больше не запускает `llama-server` напрямую. Он управляет им через `sv up neon` / `sv down neon`.
+- **Значение:** Неон теперь под защитой `runit`. Если он упадёт — `runit` его перезапустит. Стабильность выбрана.

@@ -14,31 +14,30 @@ PORT=8080
 LOG="$HOME/models/neon.log"
 
 start() {
-    if pgrep -f "llama-server" > /dev/null; then
-        echo "✅ Неон уже запущен (PID: $(pgrep -f llama-server | head -1))"
+    export SVDIR="$PREFIX/var/service"
+    if sv status neon 2>/dev/null | grep -q "run:"; then
+        echo "✅ Неон уже запущен через runit."
         return
     fi
-    echo "🚀 Запускаю гномика..."
+    echo "🚀 Запускаю Неона через runit..."
     termux-wake-lock
-    # 1.5B: -c 512 -t 1 -b 64 — лёгкий режим (быстрый старт, меньше RAM).
-    # Для 3B: -c 2048 -t 4 -b 256 (echo "$HOME/models/qwen2.5-3b-instruct-q4_k_m.gguf" > ~/.neon_model).
-    # Причина урезания: 1.5B галлюцинирует (GRABLI #16), большой контекст не помогает, только ест RAM.
-    setsid llama-server -m "$MODEL" -c 512 -t 1 -b 64 --chat-template-kwargs '{"enable_thinking": false}' --host 127.0.0.1 --port $PORT > "$LOG" 2>&1 &
+    sv up neon 2>/dev/null
     sleep 5
     if curl -s http://127.0.0.1:$PORT/v1/models > /dev/null 2>&1; then
-        echo "✅ Неон жив (PID: $(pgrep -f llama-server | head -1))"
+        echo "✅ Неон жив (через runit)."
     else
         echo "⚠️  Неон не отвечает. Лог: $LOG"
     fi
 }
 
 stop() {
-    if pgrep -f "llama-server" > /dev/null; then
-        pkill -f "llama-server"
+    export SVDIR="$PREFIX/var/service"
+    if sv status neon 2>/dev/null | grep -q "run:"; then
+        sv down neon 2>/dev/null
         termux-wake-unlock
-        echo "🛑 Неон остановлен"
+        echo "🛑 Неон остановлен (через runit)."
     else
-        echo "⚠️  Неон не запущен"
+        echo "⚠️  Неон не запущен."
     fi
 }
 
