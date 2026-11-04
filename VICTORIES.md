@@ -740,3 +740,8 @@ EOF
 - Добавлена кнопка «⚙️ Сервисы» в `index.html`.
 - API: `GET /api/m/services` (статус), `POST {"action":"start|stop", "svc":"shell|neon|scanner"}`.
 - **Значение:** Дом управляется глазами. Можно запустить Неона или остановить Shell без терминала.
+
+## Победа 210: ModuleTool.kt в APK (04.11.2026)
+- Возвращён `apk/app/src/main/java/com/rumix/tools/ModuleTool.kt` (от хакера).
+- В `META-INF/services/com.rumix.tools.RumixTool` добавлена строка `com.rumix.tools.ModuleTool`.
+- **Значение:** APK теперь видит все модули бэкенда (battery, voice, stt, uptime, services). Карточка 🧩 «Модули» появится после пересборки.
