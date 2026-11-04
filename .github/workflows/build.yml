@@ -25,10 +25,15 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
+      - name: Setup Gradle 8.2
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.2
+
       - name: Build with Gradle
         run: |
           set -o pipefail
-          ./gradlew assembleDebug 2>&1 | tee gradle.log
+          gradle assembleDebug 2>&1 | tee gradle.log
 
       - name: Show errors
         if: failure()
