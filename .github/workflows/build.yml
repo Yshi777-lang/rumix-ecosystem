@@ -9,9 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    defaults:
-      run:
-        working-directory: apk
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,21 +23,32 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      - name: Build with Gradle
-        run: ./gradlew assembleDebug 2>&1 | tee gradle.log
+      - name: Build with Gradle (system)
+        run: |
+          cd apk
+          gradle assembleDebug
 
-      - name: Show errors
-        if: failure()
-        run: grep -E "error" gradle.log | head -30 || tail -30 gradle.log
-
-      - name: Show APK
-        run: find app/build -name "*.apk" 2>/dev/null || echo "NO APK FOUND"
+      - name: Find and Upload APK
+        run: |
+          echo "=== Searching for APK ==="
+          find . -name "*.apk" -type f
+          
+          # Копируем найденный APK в корень для удобства
+          find . -name "*.apk" -type f -exec cp {} ./app-debug.apk \;
+          
+          if [ -f ./app-debug.apk ]; then
+            echo "✅ APK found and copied to root!"
+            ls -lh ./app-debug.apk
+          else
+            echo "❌ APK NOT FOUND!"
+            exit 1
+          fi
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
-          path: apk/app/build/outputs/apk/debug/*.apk
+          name: rumix-apk
+          path: app-debug.apk
           retention-days: 7
 
       - name: Create Release
@@ -48,6 +57,6 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}
           name: Rumix build ${{ github.run_number }}
-          files: apk/app/build/outputs/apk/debug/*.apk
+          files: app-debug.apk
           draft: false
           prerelease: true
