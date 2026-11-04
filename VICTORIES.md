@@ -649,3 +649,7 @@ EOF
 - `app.py` в `rumix-ecosystem` импортирует `Path` и `check_file` наверху (чистота).
 - Shell успешно запущен из `~/rumix-ecosystem/backend` и отвечает на `/api/status`.
 - **Значение:** `rumix-ecosystem` — не просто копия, а рабочий дом.
+
+## Победа 193: launch-all и shell-start знают про экосистему (04.11.2026)
+- `launch-all.sh` и `shell-start.sh` теперь сначала проверяют `~/rumix-ecosystem/backend`, а потом — `~/rumix/backend`.
+- **Значение:** Дом запускается из экосистемы (главного дома). `rumix` остаётся как архив, но не мешает.

@@ -1,6 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 RUMIX_DIR="$HOME/rumix"
+ECO_DIR="$HOME/rumix-ecosystem"
 WORK_DIR="$HOME/Work"
 FLASK_PORT=8001
 NEON_PORT=8080
@@ -65,11 +66,17 @@ if [ $NEON_OK -eq 0 ]; then
 fi
 
 # 3. Shell (8001)
-log "🌐 Запуск Rumix Shell..."
+log "🌐 Запуск Rumix Shell (из экосистемы)..."
 pkill -f "python3 app.py" 2>/dev/null
 pkill -f "python app.py" 2>/dev/null
 sleep 1
-cd "$RUMIX_DIR/backend"
+# Запускаем из rumix-ecosystem, если он есть, иначе из rumix
+if [ -d "$ECO_DIR/backend" ]; then
+    SHELL_DIR="$ECO_DIR/backend"
+else
+    SHELL_DIR="$RUMIX_DIR/backend"
+fi
+cd "$SHELL_DIR"
 nohup python3 app.py >> "$LOG_FILE" 2>&1 &
 SHELL_PID=$!
 log "✅ Shell запущен (PID: $SHELL_PID)."

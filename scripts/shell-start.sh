@@ -3,13 +3,19 @@
 # Исправлено: 21.10.2026 (задержка + повторные проверки)
 
 echo "🌊 Rumix Shell — запуск..."
+ECO_DIR="$HOME/rumix-ecosystem"
 
 # Убиваем старый процесс
 pkill -f "python3 app.py" 2>/dev/null
 sleep 1
 
 # Переходим в папку бэкенда
-cd ~/rumix/backend || exit 1
+# Запускаем из rumix-ecosystem, если он есть, иначе из rumix
+if [ -d "$ECO_DIR/backend" ]; then
+    cd "$ECO_DIR/backend" || exit 1
+else
+    cd ~/rumix/backend || exit 1
+fi
 
 # Запускаем Flask в фоне
 python3 app.py > ~/rumix/logs/shell.log 2>&1 &
