@@ -640,3 +640,12 @@ EOF
 ## Победа 190: neon.sh — пульт для runit (04.11.2026)
 - `neon.sh` больше не запускает `llama-server` напрямую. Он управляет им через `sv up neon` / `sv down neon`.
 - **Значение:** Неон теперь под защитой `runit`. Если он упадёт — `runit` его перезапустит. Стабильность выбрана.
+
+## Победа 191: core/__init__.py создан (04.11.2026)
+- В `~/rumix/core/` и `~/rumix-ecosystem/core/` создан `__init__.py`.
+- **Значение:** Python теперь видит `core` как пакет. Все импорты (`from core.fs`, `from core.modules`, `from core.bridge`) работают.
+
+## Победа 192: Shell запускается из rumix-ecosystem (04.11.2026)
+- `app.py` в `rumix-ecosystem` импортирует `Path` и `check_file` наверху (чистота).
+- Shell успешно запущен из `~/rumix-ecosystem/backend` и отвечает на `/api/status`.
+- **Значение:** `rumix-ecosystem` — не просто копия, а рабочий дом.
