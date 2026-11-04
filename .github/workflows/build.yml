@@ -28,7 +28,7 @@ jobs:
       - name: Build with Gradle
         run: |
           set -o pipefail
-          gradle assembleDebug 2>&1 | tee gradle.log
+          ./gradlew assembleDebug 2>&1 | tee gradle.log
 
       - name: Show errors
         if: failure()
