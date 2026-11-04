@@ -734,3 +734,9 @@ EOF
 - Точечно вернули: `logs/`, `models/`, `agents/` (данные) → `~/rumix/`. Код остался в `rumix-ecosystem`.
 - Добавлено правило в `RUMIX_MAP.md` и проверку в `integrity-check.sh`.
 - **Значение:** Дом больше не путает код с данными. Логи не попадут в git.
+
+## Победа 209: Управление сервисами из Shell (04.11.2026)
+- Создан `core/modules/services.py` (обёртка над `svc-manager.sh`).
+- Добавлена кнопка «⚙️ Сервисы» в `index.html`.
+- API: `GET /api/m/services` (статус), `POST {"action":"start|stop", "svc":"shell|neon|scanner"}`.
+- **Значение:** Дом управляется глазами. Можно запустить Неона или остановить Shell без терминала.

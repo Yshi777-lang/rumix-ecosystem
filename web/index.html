@@ -65,6 +65,7 @@
             <span class="group-label">⚙️ Система</span>
             <button onclick="window.open('/terminal', '_blank')">Терминал</button>
             <button onclick="window.open('/status', '_blank')">Статус</button>
+                <button onclick="runServices()">⚙️ Сервисы</button>
                 <button onclick="wakeNeon()">🤖 Разбудить</button>
             <button onclick="window.open('/map', '_blank')">Карта</button>
             <button onclick="runAction('audit')">Аудит</button>
@@ -214,6 +215,46 @@
             } catch (e) {
                 title.innerText = '❌ Ошибка';
                 output.innerText = 'Ошибка связи: ' + e.message;
+            }
+        }
+
+
+        async function runServices() {
+            const modal = document.getElementById('action-modal');
+            const title = document.getElementById('action-title');
+            const output = document.getElementById('action-output');
+            if(!modal) { alert('Модалка не найдена'); return; }
+            
+            title.innerText = '⚙️ Управление сервисами';
+            output.innerHTML = `
+                <div style="margin-bottom:10px">
+                    <button onclick="svcAction('shell','start')" style="background:#39ff14;color:#000;padding:5px 10px;border-radius:4px;border:none;cursor:pointer;margin-right:5px">▶ Shell</button>
+                    <button onclick="svcAction('shell','stop')" style="background:#ff4444;color:#fff;padding:5px 10px;border-radius:4px;border:none;cursor:pointer;margin-right:5px">⏹ Shell</button>
+                    <button onclick="svcAction('neon','start')" style="background:#39ff14;color:#000;padding:5px 10px;border-radius:4px;border:none;cursor:pointer;margin-right:5px">▶ Неон</button>
+                    <button onclick="svcAction('neon','stop')" style="background:#ff4444;color:#fff;padding:5px 10px;border-radius:4px;border:none;cursor:pointer">⏹ Неон</button>
+                </div>
+                <div id="svc-output" style="white-space:pre-wrap;color:#c8ffc8">Готов.</div>
+            `;
+            modal.style.display = 'flex';
+            
+            const r = await fetch('/api/m/services');
+            const d = await r.json();
+            document.getElementById('svc-output').innerText = d.data.status_report || 'Нет статуса';
+        }
+        
+        async function svcAction(svc, action) {
+            const out = document.getElementById('svc-output');
+            out.innerText = 'Выполняю...';
+            try {
+                const r = await fetch('/api/m/services', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({action: action, svc: svc})
+                });
+                const d = await r.json();
+                out.innerText = d.data.result || JSON.stringify(d);
+            } catch (e) {
+                out.innerText = 'Ошибка: ' + e.message;
             }
         }
 
