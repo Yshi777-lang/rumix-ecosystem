@@ -2,7 +2,7 @@
 """Rumix Tools CLI — отладка tools через Python Fire.
 
 Запуск:
-    cd ~/rumix/agents
+    cd ~/rumix-ecosystem/agents
     python3 -m runtime.cli system_info
     python3 -m runtime.cli package_info
     python3 -m runtime.cli network_status

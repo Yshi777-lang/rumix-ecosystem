@@ -25,7 +25,7 @@ echo ""
 echo "─── Пути ───"
 
 # Все скрипты не должны ссылаться на Work/neon, Work/scripts
-bad_paths=$(grep -rn "HOME/Work/neon\|HOME/Work/scripts\|~/Work/neon\|~/Work/scripts" ~/rumix/scripts/*.sh ~/rumix/loop/*.sh 2>/dev/null | grep -v "check-config-drift.sh" || true)
+bad_paths=$(grep -rn "HOME/Work/neon\|HOME/Work/scripts\|~/Work/neon\|~/Work/scripts" ~/rumix-ecosystem/scripts/*.sh ~/rumix-ecosystem/loop/*.sh 2>/dev/null | grep -v "check-config-drift.sh" || true)
 if [ -n "$bad_paths" ]; then
     report_issue "Найдены устаревшие пути Work/neon, Work/scripts:"
     echo "$bad_paths" | head -5 | while read -r line; do echo "      $line"; done
@@ -34,7 +34,7 @@ else
 fi
 
 # Критичные файлы должны существовать
-for f in ~/rumix/neon/character.md ~/rumix/scripts/rumix.sh ~/rumix/loop/loop-v0.3.sh ~/rumix/models/catalog.json; do
+for f in ~/rumix/neon/character.md ~/rumix-ecosystem/scripts/rumix.sh ~/rumix/loop/loop-v0.3.sh ~/rumix/models/catalog.json; do
     if [ ! -f "$f" ]; then
         report_issue "Файл отсутствует: $f"
     fi
@@ -46,7 +46,7 @@ echo ""
 echo "─── Модель ───"
 
 CATALOG="$HOME/rumix/models/catalog.json"
-INSTALL="$HOME/rumix/scripts/install-neon.sh"
+INSTALL="$HOME/rumix-ecosystem/scripts/install-neon.sh"
 
 if [ -f "$CATALOG" ] && [ -f "$INSTALL" ]; then
     # Извлекаем имя файла модели из каталога
@@ -86,7 +86,7 @@ echo ""
 # ─── 3. .zshrc: ключи из setup-rumix.sh ───
 echo "─── .zshrc ───"
 
-SETUP="$HOME/rumix/scripts/setup-rumix.sh"
+SETUP="$HOME/rumix-ecosystem/scripts/setup-rumix.sh"
 if [ -f "$SETUP" ]; then
     # Проверим, что в шаблоне setup-rumix.sh есть PROMPT_SUBST
     if grep -q "setopt PROMPT_SUBST" "$SETUP"; then
@@ -166,7 +166,7 @@ echo ""
 # ─── 5. Loop: cache vs loop-v0.3.sh ───
 echo "─── Loop ───"
 
-LOOP3="$HOME/rumix/loop/loop-v0.3.sh"
+LOOP3="$HOME/rumix-ecosystem/loop/loop-v0.3.sh"
 if [ -f "$LOOP3" ]; then
     if grep -q "CACHE_MAX_LINES" "$LOOP3"; then
         echo "  ✅ CACHE_MAX_LINES в loop-v0.3.sh"

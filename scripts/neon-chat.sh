@@ -11,7 +11,7 @@ if [ -f "$NEON_MODEL_FILE" ]; then
 else
     MODEL="qwen3-0.6b-q4"
 fi
-CHARACTER_FILE="$HOME/rumix/neon/character.md"
+CHARACTER_FILE="$HOME/rumix-ecosystem/neon/character.md"
 CHAT_FILE="$HOME/storage/shared/neon/chat.jsonl"
 
 mkdir -p "$(dirname "$CHAT_FILE")"

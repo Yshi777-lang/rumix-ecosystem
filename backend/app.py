@@ -173,7 +173,7 @@ def status():
 @app.route('/api/logs')
 def logs():
     import os
-    log_path = os.path.expanduser('~/rumix-ecosystem/logs/shell.log')
+    log_path = os.path.expanduser('~/rumix/logs/shell.log')
     try:
         with open(log_path, 'r', encoding='utf-8', errors='replace') as f:
             lines = f.readlines()

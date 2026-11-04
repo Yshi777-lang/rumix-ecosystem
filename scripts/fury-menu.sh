@@ -6,22 +6,22 @@ while true; do
     gum style --border normal --padding "0 2" --border-foreground 208 "🦊 ФУРИЯ — ПОДМЕНЮ"
 
     choice=$(gum choose \
-        "🔍 Аудит периметра (fury.sh)" \
+        "🔍 Аудит периметра (fury-light.sh)" \
         "🌐 Recon DNS (recon.sh)" \
         "📦 Обновить pip-пакеты" \
         "🔙 Назад в Rumix" \
         "🚪 Выход")
 
     case "$choice" in
-        "🔍 Аудит периметра (fury.sh)")
-            bash "$HOME/rumix/scripts/fury.sh"
+        "🔍 Аудит периметра (fury-light.sh)")
+            bash "$HOME/rumix-ecosystem/scripts/fury-light.sh"
             echo ""; read -p "Enter для возврата..."
             ;;
         "🌐 Recon DNS (recon.sh)")
             echo ""
             read -p "Введи домен (например github.com): " domain
             if [ -n "$domain" ]; then
-                bash "$HOME/rumix/scripts/recon.sh" "$domain"
+                bash "$HOME/rumix-ecosystem/scripts/recon.sh" "$domain"
             else
                 echo "⚠️  Домен не введён."
             fi
@@ -29,7 +29,7 @@ while true; do
             ;;
         "📦 Обновить pip-пакеты")
             echo ""
-            bash "$HOME/rumix/scripts/fury.sh" --pip-update
+            bash "$HOME/rumix-ecosystem/scripts/fury-light.sh" --pip-update
             echo ""; read -p "Enter для возврата..."
             ;;
         "🔙 Назад в Rumix") exit 0 ;;

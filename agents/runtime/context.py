@@ -12,7 +12,7 @@ BASE = Path(__file__).resolve().parent.parent
 
 
 def read(rel_path):
-    """Прочитать файл относительно ~/rumix/agents/."""
+    """Прочитать файл относительно ~/rumix-ecosystem/agents/."""
     return (BASE / rel_path).read_text(encoding="utf-8")
 
 

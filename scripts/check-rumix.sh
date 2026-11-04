@@ -66,10 +66,10 @@ git log --oneline -5
 echo ""
 
 echo "═══ ASSETS/SCRIPTS (наши скрипты) ═══"
-if [ -d "app/src/main/assets/rumix/scripts" ]; then
-    ls -la app/src/main/assets/rumix/scripts/ | tail -15
+if [ -d "app/src/main/assets/rumix-ecosystem/scripts" ]; then
+    ls -la app/src/main/assets/rumix-ecosystem/scripts/ | tail -15
 else
-    echo "⚠️  assets/rumix/scripts не найден"
+    echo "⚠️  assets/rumix-ecosystem/scripts не найден"
 fi
 echo ""
 
@@ -106,9 +106,9 @@ echo ""
 issues=0
 problems=""
 
-if [ ! -f "$HOME/rumix/scripts/rumix.sh" ]; then
+if [ ! -f "$HOME/rumix-ecosystem/scripts/rumix.sh" ]; then
     problems="${problems}
-   ❌ rumix.sh не найден: ~/rumix/scripts/rumix.sh"
+   ❌ rumix.sh не найден: ~/rumix-ecosystem/scripts/rumix.sh"
     issues=$((issues+1))
 fi
 
@@ -120,7 +120,7 @@ fi
 
 if [ ! -f "$HOME/models/qwen3-0.6b-q4.gguf" ]; then
     problems="${problems}
-   ❌ Модель не найдена: ~/models/qwen3-0.6b-q4.gguf. Скачать: bash ~/rumix/scripts/install-neon.sh"
+   ❌ Модель не найдена: ~/models/qwen3-0.6b-q4.gguf. Скачать: bash ~/rumix-ecosystem/scripts/install-neon.sh"
     issues=$((issues+1))
 fi
 
@@ -136,5 +136,5 @@ else
     echo "⚠️  Что-то не так: $issues из 4 проверок."
     echo "$problems"
     echo ""
-    echo "💡 Быстрый фикс: bash ~/rumix/scripts/setup-rumix.sh"
+    echo "💡 Быстрый фикс: bash ~/rumix-ecosystem/scripts/setup-rumix.sh"
 fi

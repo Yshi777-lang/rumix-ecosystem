@@ -61,7 +61,7 @@ SCRIPTS=(
     "rumix.sh"
     "shell-start.sh"
     "shell-stop.sh"
-    "fury.sh"
+    "fury-light.sh"
     "backup.sh"
     "check-rumix.sh"
     "agents-menu.sh"
@@ -69,7 +69,7 @@ SCRIPTS=(
     "install-neon.sh"
 )
 for scr in "${SCRIPTS[@]}"; do
-    if [ -f ~/rumix/scripts/$scr ]; then
+    if [ -f ~/rumix-ecosystem/scripts/$scr ]; then
         echo -e "  ${GREEN}✅${RESET} $scr"
     else
         echo -e "  ${RED}❌${RESET} $scr"

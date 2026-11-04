@@ -15,7 +15,7 @@ evidence_buffer.py — Evidence Buffer v0.1.
 - raw_ref      — ссылка на сырой вывод
 - conflict     — bool (противоречие)
 
-Хранилище: ~/rumix/agents/evidence.jsonl — append-only.
+Хранилище: ~/rumix-ecosystem/agents/evidence.jsonl — append-only.
 """
 
 import json

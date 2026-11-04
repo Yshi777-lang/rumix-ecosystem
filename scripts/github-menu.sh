@@ -109,7 +109,7 @@ while true; do
 
         # ═══ ТОКЕН / API ═══
         "🔑 Токен / API")
-            bash "$HOME/rumix/scripts/github-token.sh"
+            bash "$HOME/rumix-ecosystem/scripts/github-token.sh"
             ;;
 
         # ═══ ОТКРЫТЬ РЕПО ═══

@@ -5,7 +5,7 @@
 case "$1" in
     start)
         # Добавляем cron-задание, если его нет
-        (crontab -l 2>/dev/null | grep -v "sync-all-bg.sh"; echo "*/15 * * * * bash ~/rumix/scripts/sync-all-bg.sh") | crontab -
+        (crontab -l 2>/dev/null | grep -v "sync-all-bg.sh"; echo "*/15 * * * * bash ~/rumix-ecosystem/scripts/sync-all-bg.sh") | crontab -
         echo "✅ Синхронизация запущена (каждые 15 минут)."
         ;;
     stop)
@@ -19,7 +19,7 @@ case "$1" in
             exit 1
         fi
         # Меняем интервал
-        (crontab -l 2>/dev/null | grep -v "sync-all-bg.sh"; echo "*/$2 * * * * bash ~/rumix/scripts/sync-all-bg.sh") | crontab -
+        (crontab -l 2>/dev/null | grep -v "sync-all-bg.sh"; echo "*/$2 * * * * bash ~/rumix-ecosystem/scripts/sync-all-bg.sh") | crontab -
         echo "✅ Интервал изменён на $2 минут."
         ;;
     status)
@@ -31,7 +31,7 @@ case "$1" in
         fi
         ;;
     now)
-        bash ~/rumix/scripts/sync-all-bg.sh
+        bash ~/rumix-ecosystem/scripts/sync-all-bg.sh
         ;;
     *)
         echo "Использование:"

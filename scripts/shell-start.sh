@@ -14,7 +14,7 @@ sleep 1
 if [ -d "$ECO_DIR/backend" ]; then
     cd "$ECO_DIR/backend" || exit 1
 else
-    cd ~/rumix/backend || exit 1
+    cd ~/rumix-ecosystem/backend || exit 1
 fi
 
 # Запускаем Flask в фоне

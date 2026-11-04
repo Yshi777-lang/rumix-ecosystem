@@ -18,7 +18,7 @@ from runtime.tools import call_tool, format_result
 from runtime.sanitizer import sanitize_dict
 from runtime.fake_output import detect_fake_output
 import sys as _sys
-_sys.path.insert(0, '/data/data/com.termux/files/home/rumix/agents')
+_sys.path.insert(0, '/data/data/com.termux/files/home/rumix-ecosystem/agents')
 from skills.skill_loader import list_skills, pick_skills
 
 

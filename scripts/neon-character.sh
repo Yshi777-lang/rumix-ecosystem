@@ -2,7 +2,7 @@
 # Неон — редактор характера
 # Неоновый шёпот. 🤖
 
-FILE="$HOME/rumix/neon/character.md"
+FILE="$HOME/rumix-ecosystem/neon/character.md"
 
 if [ ! -f "$FILE" ]; then
     echo "⚠️  Файл характера не найден."

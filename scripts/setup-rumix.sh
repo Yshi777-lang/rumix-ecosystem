@@ -35,12 +35,12 @@ export PS1='%F{magenta}➜  %F{cyan}%1~%F{white} $(git branch --show-current 2>/
 
 alias rw='cd ~/Work'
 alias rg='cd ~/Work && git status'
-alias rumix='bash ~/rumix/scripts/rumix.sh'
-alias session-load='bash ~/rumix/scripts/session-load.sh'
+alias rumix='bash ~/rumix-ecosystem/scripts/rumix.sh'
+alias session-load='bash ~/rumix-ecosystem/scripts/session-load.sh'
 alias notes='cd ~/Work/notes'
-alias scripts='cd ~/rumix/scripts'
-alias setup-rumix='bash ~/rumix/scripts/setup-rumix.sh'
-alias install-neon='bash ~/rumix/scripts/install-neon.sh'
+alias scripts='cd ~/rumix-ecosystem/scripts'
+alias setup-rumix='bash ~/rumix-ecosystem/scripts/setup-rumix.sh'
+alias install-neon='bash ~/rumix-ecosystem/scripts/install-neon.sh'
 
 echo "Rumix готов. Неоновый шёпот активен. 🧬"
 
@@ -55,7 +55,7 @@ fi
 # RUMIX — bootstrap + auto-setup
 # ==============================
 if [ ! -f ~/.rumix-setup-done ]; then
-    if [ ! -d ~/rumix/.git ]; then
+    if [ ! -d ~/rumix-ecosystem/.git ]; then
         echo "🧬 Rumix: клонирую репо..."
         timeout 300 git clone -b My-love-Tiamat https://github.com/Yshi777-lang/rumix.git ~/rumix 2>&1 | tail -3
     fi
@@ -63,8 +63,8 @@ if [ ! -f ~/.rumix-setup-done ]; then
         echo "📁 Work: клонирую репо..."
         timeout 300 git clone https://github.com/Yshi777-lang/Work.git ~/Work 2>&1 | tail -3
     fi
-    if [ -f ~/rumix/scripts/setup-rumix.sh ]; then
-        bash ~/rumix/scripts/setup-rumix.sh
+    if [ -f ~/rumix-ecosystem/scripts/setup-rumix.sh ]; then
+        bash ~/rumix-ecosystem/scripts/setup-rumix.sh
     fi
 fi
 ZSHRC_EOF
@@ -73,10 +73,10 @@ ZSHRC_EOF
 echo "📁 Копирую скрипты..."
 ASSETS_DIR="/data/data/com.termux/files/home/storage/shared/rumix-assets"
 if [ -d "$ASSETS_DIR/scripts" ]; then
-    mkdir -p ~/rumix/scripts ~/Work/notes ~/rumix/neon
-    cp -r "$ASSETS_DIR/scripts/"* ~/rumix/scripts/ 2>/dev/null
+    mkdir -p ~/rumix-ecosystem/scripts ~/Work/notes ~/rumix-ecosystem/neon
+    cp -r "$ASSETS_DIR/scripts/"* ~/rumix-ecosystem/scripts/ 2>/dev/null
     cp -r "$ASSETS_DIR/config/"* ~/Work/ 2>/dev/null
-    chmod +x ~/rumix/scripts/*.sh 2>/dev/null
+    chmod +x ~/rumix-ecosystem/scripts/*.sh 2>/dev/null
     echo "✅ Скрипты скопированы из assets"
 else
     echo "⚠️  assets не найдены. Клонирую дом из GitHub..."
@@ -90,7 +90,7 @@ else
         cd ~/Work && git pull 2>&1 | tail -2
     fi
     # rumix (ветка My-love-Tiamat)
-    if [ ! -d ~/rumix/.git ]; then
+    if [ ! -d ~/rumix-ecosystem/.git ]; then
         echo "📁 Клонирую rumix..."
         timeout 300 git clone -b My-love-Tiamat https://github.com/Yshi777-lang/rumix.git ~/rumix 2>&1 | tail -3
     else

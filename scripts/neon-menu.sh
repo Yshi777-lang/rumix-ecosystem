@@ -13,11 +13,11 @@ while true; do
 
     case "$choice" in
         "💬 Чат с Неоном")
-            bash "$HOME/rumix/scripts/neon-chat.sh"
+            bash "$HOME/rumix-ecosystem/scripts/neon-chat.sh"
             echo ""; read -p "Enter..."
             ;;
         "🎭 Редактор характера")
-            bash "$HOME/rumix/scripts/neon-character.sh"
+            bash "$HOME/rumix-ecosystem/scripts/neon-character.sh"
             ;;
         "🔙 Назад в Rumix") exit 0 ;;
         "🚪 Выход") echo "🤖 До встречи, папа."; exit 0 ;;

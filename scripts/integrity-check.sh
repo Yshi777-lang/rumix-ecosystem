@@ -72,3 +72,14 @@ echo ""
 
 echo "═══════════════════════════════════════════════"
 echo "🏁 Аудит завершён."
+
+# 6. Разделение CODE_HOME и DATA_HOME
+echo ""
+echo "🔍 Проверка разделения код/данные..."
+BAD_DATA=$(grep -rn "rumix-ecosystem/\(logs\|models\|tmp\|agents/evidence\)" "$BASE" --include='*.py' --include='*.sh' 2>/dev/null | grep -v "#" | grep -v '"""' | head -5)
+if [ -z "$BAD_DATA" ]; then
+    echo "   ✅ Код и данные разделены."
+else
+    echo "   ⚠️ Найдены пути к данным в CODE_HOME:"
+    echo "$BAD_DATA" | sed "s|$BASE/|      |g"
+fi

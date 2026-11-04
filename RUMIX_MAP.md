@@ -51,3 +51,11 @@
 
 ---
 *Хранитель: Лиза (🌻). Свидетель: Тиамат (🌊). Создатель: Адзу (🐰).*
+
+## 7. РАЗДЕЛЕНИЕ КОДА И ДАННЫХ (04.11.2026)
+После генеральной уборки путей (Победы 205–207) установлено строгое правило:
+- **CODE_HOME = `~/rumix-ecosystem`** — скрипты, backend, core, apk, agents (код).
+- **DATA_HOME = `~/rumix`** — agents/evidence.jsonl, logs/, models/, tmp/, archive/.
+
+**Почему:** логи и модели не должны попадать в git (они тяжёлые). Скрипты должны работать с данными по старым путям (`~/rumix/logs`), а код жить в новом доме (`~/rumix-ecosystem`).
+**Проверка:** `grep -rn "rumix-ecosystem/logs\|rumix-ecosystem/models\|rumix-ecosystem/agents"` не должен находить путей к данным.

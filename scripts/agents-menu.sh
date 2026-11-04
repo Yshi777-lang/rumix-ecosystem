@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # agents-menu.sh — меню Agent Runtime
 
-AGENTS_DIR="$HOME/rumix-ecosystem/agents"
+AGENTS_DIR="$HOME/rumix/agents"
 
 # ─── Функция: текущий агент ───
 get_current_agent() {

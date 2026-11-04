@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # backup.sh — полный бекап Rumix в ~/storage/shared/Download/
 # Зеркало restore.sh. Создаёт структуру, которую restore умеет читать.
-# Использование: bash ~/rumix/scripts/backup.sh
+# Использование: bash ~/rumix-ecosystem/scripts/backup.sh
 
 TIMESTAMP=$(date +%Y-%m-%d-%H%M)
 BK_DIR=~/storage/shared/Download
@@ -106,4 +106,4 @@ echo "📋 Содержимое:"
 ls -la "$BK_PATH"
 echo ""
 echo "🔄 Восстановление:"
-echo "   bash ~/rumix/scripts/restore.sh"
+echo "   bash ~/rumix-ecosystem/scripts/restore.sh"

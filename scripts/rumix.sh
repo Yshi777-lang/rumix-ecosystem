@@ -2,8 +2,8 @@
 # rumix.sh — главное меню дома 🧬
 
 # Проверка PIN (если установлен)
-if [ -f "$HOME/rumix/scripts/rumix-pin.sh" ]; then
-    if ! bash "$HOME/rumix/scripts/rumix-pin.sh" check; then
+if [ -f "$HOME/rumix-ecosystem/scripts/rumix-pin.sh" ]; then
+    if ! bash "$HOME/rumix-ecosystem/scripts/rumix-pin.sh" check; then
         exit 1
     fi
 fi
@@ -48,12 +48,12 @@ while true; do
 
     case "$choice" in
         "🔄 Синхронизация (GitHub)")
-            bash "$HOME/rumix/scripts/sync-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/sync-menu.sh"
             echo ""
             read -p "Нажми Enter..."
             ;;
         "🌊 Оболочка (запуск всего)")
-            bash "$HOME/rumix/scripts/launch-all.sh"
+            bash "$HOME/rumix-ecosystem/scripts/launch-all.sh"
             echo ""
             read -p "Нажми Enter..."
             ;;
@@ -61,16 +61,16 @@ while true; do
             exec zsh
             ;;
         "🤖 AI: Неон (меню)")
-            bash "$HOME/rumix/scripts/neon-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/neon-menu.sh"
             ;;
         "🤖 Agent Runtime")
-            bash "$HOME/rumix/scripts/agents-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/agents-menu.sh"
             ;;
         "🦊 AI: Фурия (меню)")
-            bash "$HOME/rumix/scripts/fury-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/fury-menu.sh"
             ;;
         "📦 Установить Неона")
-            bash "$HOME/rumix/scripts/install-neon.sh"
+            bash "$HOME/rumix-ecosystem/scripts/install-neon.sh"
             read -p "Enter..."
             ;;
         "🌿 Git: Work")
@@ -78,7 +78,7 @@ while true; do
             exec zsh
             ;;
         "🌊 Rumix Shell")
-            bash "$HOME/rumix/scripts/shell-start.sh"
+            bash "$HOME/rumix-ecosystem/scripts/shell-start.sh"
             read -p "Enter..."
             ;;
         "🛡️ CyberScanner")
@@ -86,30 +86,30 @@ while true; do
             read -p "Enter..."
             ;;
         "📁 Проекты")
-            bash "$HOME/rumix/scripts/projects-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/projects-menu.sh"
             ;;
         "🗂  Файлы")
-            bash "$HOME/rumix/scripts/files-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/files-menu.sh"
             ;;
         "🐙 GitHub")
-            bash "$HOME/rumix/scripts/github-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/github-menu.sh"
             ;;
         "⚙️  Настройки и память")
-            bash "$HOME/rumix/scripts/settings-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/settings-menu.sh"
             ;;
         "📊 Статус (жив ли дом)")
-            bash "$HOME/rumix/scripts/status.sh"
+            bash "$HOME/rumix-ecosystem/scripts/status.sh"
             read -p "Enter..."
             ;;
         "🗺️  Карта дома")
-            bash "$HOME/rumix/scripts/show-map.sh"
+            bash "$HOME/rumix-ecosystem/scripts/show-map.sh"
             ;;
         "📖 Инструкция")
             clear
             less "$HOME/Work/blocks/cards/rumix-first-time.md"
             ;;
         "🛑 Остановить всё")
-            bash "$HOME/rumix/scripts/stop-all.sh"
+            bash "$HOME/rumix-ecosystem/scripts/stop-all.sh"
             read -p "Enter..."
             ;;
         "🚪 Выход")

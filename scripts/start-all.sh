@@ -10,10 +10,10 @@ tmux kill-session -t shell 2>/dev/null
 tmux kill-session -t scanner 2>/dev/null
 
 echo "🧠 Запуск Неона (tmux: neon)..."
-tmux new-session -d -s neon "cd ~/rumix/scripts && bash neon.sh start; bash"
+tmux new-session -d -s neon "cd ~/rumix-ecosystem/scripts && bash neon.sh start; bash"
 
 echo "🌐 Запуск Shell (tmux: shell)..."
-tmux new-session -d -s shell "cd ~/rumix/backend && python3 app.py"
+tmux new-session -d -s shell "cd ~/rumix-ecosystem/backend && python3 app.py"
 
 echo "🛡️ Запуск CyberScanner (tmux: scanner)..."
 tmux new-session -d -s scanner "cd ~/Work/archive/CyberScanner-v2/web && python3 app.py"
