@@ -25,11 +25,8 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew || true
-
       - name: Build with Gradle
-        run: ./gradlew assembleDebug 2>&1 | tee gradle.log
+        run: gradle assembleDebug 2>&1 | tee gradle.log
 
       - name: Show errors
         if: failure()
