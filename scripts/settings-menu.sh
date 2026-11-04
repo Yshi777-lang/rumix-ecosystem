@@ -30,7 +30,13 @@ while true; do
             echo ""; echo "═══ МОДЕЛЬ ═══"
             ls -lh ~/models/*.gguf 2>/dev/null
             echo ""; echo "Порт: 8080"
-            echo "Контекст: 4096 (в neon.sh)"
+            # Показываем реальный контекст из runit-сервиса
+            if [ -f "$PREFIX/var/service/neon/run" ]; then
+                CTX=$(grep -o "\-c [0-9]*" "$PREFIX/var/service/neon/run" | head -1)
+                echo "Контекст: $CTX (в runit-сервисе)"
+            else
+                echo "Контекст: сервис не найден"
+            fi
             echo ""; read -p "Enter..."
             ;;
         "🎨 Редактор colors.properties")
