@@ -2,6 +2,11 @@ from flask import Flask, send_from_directory, jsonify, request, session
 import subprocess
 import json
 import os
+from pathlib import Path
+import sys as _sys
+_sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from core.bridge.file_gate import check_file
 
 app = Flask(__name__)
 app.secret_key = "rumix_secret_key_2026"
@@ -10,7 +15,7 @@ socketio = SocketIO(app, cors_allowed_origins=["http://127.0.0.1:8001", "http://
 
 # Ядро файлового менеджера (порт из Twig)
 import sys as _sys
-_sys.path.insert(0, '/data/data/com.termux/files/home/rumix')
+_sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 try:
     from core.fs.registry import FsRegistry
     from core.fs.fs_local import LocalFileSystem
@@ -61,7 +66,6 @@ def check_auth():
 @app.route('/api/agent/status')
 def agent_status():
     import json
-    from pathlib import Path
     f = Path.home() / '.rumix_status.json'
     if f.exists():
         try:
@@ -72,17 +76,15 @@ def agent_status():
 
 @app.route('/fury')
 def fury_page():
-    from pathlib import Path
     return (Path(__file__).parent.parent / 'web' / 'fury.html').read_text(encoding='utf-8')
 
 @app.route('/api/fury', methods=['POST'])
 def api_fury():
     import subprocess
-    from pathlib import Path
     try:
         result = subprocess.run(
-            ['bash', str(Path.home() / 'rumix' / 'scripts' / 'fury.sh')],
-            capture_output=True, text=True, timeout=60
+            ['bash', str(Path.home() / 'rumix' / 'scripts' / 'fury-light.sh')],
+            capture_output=True, text=True, timeout=30
         )
         return jsonify({'ok': True, 'output': result.stdout + result.stderr})
     except subprocess.TimeoutExpired:
@@ -92,7 +94,6 @@ def api_fury():
 
 @app.route('/stop')
 def stop_page():
-    from pathlib import Path
     return (Path(__file__).parent.parent / 'web' / 'stop.html').read_text(encoding='utf-8')
 
 @app.route('/api/stop', methods=['POST'])
@@ -122,12 +123,10 @@ def api_stop():
 
 @app.route('/map')
 def map_page():
-    from pathlib import Path
     return (Path(__file__).parent.parent / 'web' / 'map.html').read_text(encoding='utf-8')
 
 @app.route('/api/map')
 def api_map():
-    from pathlib import Path
     import json
     f = Path.home() / 'Work' / 'notes' / 'CORE' / 'RUMIX_MAP.md'
     if f.exists():
@@ -136,13 +135,11 @@ def api_map():
 
 @app.route('/status')
 def status_page():
-    from pathlib import Path
     return (Path(__file__).parent.parent / 'web' / 'status.html').read_text(encoding='utf-8')
 
 @app.route('/api/neon/start', methods=['POST'])
 def neon_start():
     import subprocess
-    from pathlib import Path
     script = Path.home() / 'rumix' / 'scripts' / 'neon.sh'
     if not script.exists():
         return jsonify({'ok': False, 'error': 'neon.sh не найден'})
@@ -198,7 +195,6 @@ def files():
         scheme = request.args.get('scheme') or 'file'
         host = request.args.get('host')
         # Проверка file_gate
-        from core.bridge.file_gate import check_file
         gate = check_file(path, 'read')
         if not gate['allowed']:
             return jsonify({'error': gate['message']}), 403
@@ -431,7 +427,6 @@ def files_read():
     try:
         from core.fs.registry import FsRegistry
         from core.fs.fs_exception import FsException
-        from core.bridge.file_gate import check_file
         path = request.args.get('path')
         if not path:
             return jsonify({'error': 'path required'}), 400
@@ -660,7 +655,7 @@ def bridge_task_get(task_id):
 
 # === Веб-терминал (Победа 87) ===
 import sys
-sys.path.insert(0, '/data/data/com.termux/files/home/rumix')
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from web.terminal_api import run_command
 
 @app.route('/api/terminal', methods=['POST'])
