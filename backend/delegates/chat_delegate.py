@@ -15,7 +15,7 @@ from core.mcp_server import McpServer
 chat_bp = Blueprint('chat', __name__)
 
 import os
-_character_path = os.path.expanduser('~/rumix/neon/character.md')
+_character_path = os.path.expanduser('~/rumix-ecosystem/neon/character.md')
 try:
     with open(_character_path, 'r', encoding='utf-8') as f:
         _character = f.read()

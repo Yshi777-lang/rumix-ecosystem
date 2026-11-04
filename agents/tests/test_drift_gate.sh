@@ -5,7 +5,7 @@
 # 3. Exit code ≠ 0 при критике.
 # 4. Нет ложных срабатываний на штатной конфигурации.
 
-cd "$HOME/rumix/scripts" || exit 1
+cd "$HOME/rumix-ecosystem/scripts" || exit 1
 
 # ─── Drift-04: штатная конфигурация → exit 0 ───
 bash check-config-drift.sh > $PREFIX/tmp/drift-clean.log 2>&1

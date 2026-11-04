@@ -1,4 +1,4 @@
-# ~/rumix/core/bridge/permissions.py
+# ~/rumix-ecosystem/core/bridge/permissions.py
 # Permission Gate — уровни доступа и белый список.
 # Создано: 17.10.2026 (Тиамат + Зая)
 

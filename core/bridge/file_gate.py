@@ -1,4 +1,4 @@
-# ~/rumix/core/bridge/file_gate.py
+# ~/rumix-ecosystem/core/bridge/file_gate.py
 # Врата для файловых операций.
 # Создано: 17.10.2026 (Тиамат + Зая)
 

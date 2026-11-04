@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 # Добавляем runtime в path
-sys.path.insert(0, "/data/data/com.termux/files/home/rumix/agents")
+sys.path.insert(0, "/data/data/com.termux/files/home/rumix-ecosystem/agents")
 
 try:
     from runtime.local_provider import LocalProvider
@@ -271,7 +271,7 @@ def generate_skill(requirement):
 def install_skill(parsed):
     """Сохранить сгенерированный SKILL.md."""
     name = parsed["name"]
-    skills_dir = Path("/data/data/com.termux/files/home/rumix/agents/skills")
+    skills_dir = Path("/data/data/com.termux/files/home/rumix-ecosystem/agents/skills")
     skill_dir = skills_dir / name
     if skill_dir.exists():
         return {"error": f"skill уже существует: {name}"}

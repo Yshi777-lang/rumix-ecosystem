@@ -3,7 +3,7 @@
 # Использование: bash loop-log.sh [N]
 # N — сколько последних записей (по умолчанию 10)
 
-CACHE="$HOME/rumix/loop/cache.jsonl"
+CACHE="$HOME/rumix-ecosystem/loop/cache.jsonl"
 N="${1:-10}"
 
 if [ ! -f "$CACHE" ]; then

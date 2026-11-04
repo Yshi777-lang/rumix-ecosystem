@@ -11,7 +11,7 @@ if 'Синхронизация (GitHub)' not in content:
     # Добавляем обработчик в case
     old_case = '"🌊 Оболочка (запуск всего)")'
     new_case = '''"🔄 Синхронизация (GitHub)")
-            bash "$HOME/rumix/scripts/sync-menu.sh"
+            bash "$HOME/rumix-ecosystem/scripts/sync-menu.sh"
             echo ""
             read -p "Нажми Enter..."
             ;;

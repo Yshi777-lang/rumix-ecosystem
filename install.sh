@@ -29,7 +29,7 @@ fi
 # 5. .zshrc (если нет)
 echo "🐚 Настраиваю .zshrc..."
 if [ ! -f ~/.zshrc ]; then
-    cp ~/rumix/zshrc.backup ~/.zshrc 2>/dev/null || echo "⚠️ Нет zshrc.backup, пропускаю."
+    cp ~/rumix-ecosystem/zshrc.backup ~/.zshrc 2>/dev/null || echo "⚠️ Нет zshrc.backup, пропускаю."
 fi
 
 # 6. Клонирование rumix (если нет)
@@ -40,6 +40,6 @@ fi
 
 # 7. Запуск Неона
 echo "🚀 Запускаю Неона..."
-bash ~/rumix/scripts/neon.sh start || true
+bash ~/rumix-ecosystem/scripts/neon.sh start || true
 
-echo "🌊 Rumix установлен! Запускай: bash ~/rumix/scripts/launch-all.sh"
+echo "🌊 Rumix установлен! Запускай: bash ~/rumix-ecosystem/scripts/launch-all.sh"

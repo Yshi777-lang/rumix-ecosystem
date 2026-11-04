@@ -1,4 +1,4 @@
-# ~/rumix/core/bridge/gate.py
+# ~/rumix-ecosystem/core/bridge/gate.py
 # Интеграция Permission Gate с Bridge.
 # Создано: 17.10.2026 (Тиамат + Зая)
 

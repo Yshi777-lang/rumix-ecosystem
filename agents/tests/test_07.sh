@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # test_07 — Provider: LocalProvider + MockProvider (подмена)
 
-cd "$HOME/rumix/agents" || exit 1
+cd "$HOME/rumix-ecosystem/agents" || exit 1
 
 python3 -c "
 import sys

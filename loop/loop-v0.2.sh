@@ -7,7 +7,7 @@
 #
 # Результат: пишется в in/<name>.result И в буфер с тегом <RUMIX_RESULT>
 
-LOOP_DIR="$HOME/rumix/loop"
+LOOP_DIR="$HOME/rumix-ecosystem/loop"
 OUT_DIR="$LOOP_DIR/out"
 IN_DIR="$LOOP_DIR/in"
 DONE_DIR="$LOOP_DIR/done"

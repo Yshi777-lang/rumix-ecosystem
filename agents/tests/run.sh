@@ -2,7 +2,7 @@
 # run.sh — Regression Runner v0.1
 # Запускает все test_*.sh. Собирает PASS/FAIL.
 
-TESTS_DIR="$HOME/rumix/agents/tests"
+TESTS_DIR="$HOME/rumix-ecosystem/agents/tests"
 RESULTS_DIR="$TESTS_DIR/results"
 TIMESTAMP=$(date '+%Y-%m-%d-%H%M')
 RESULT_FILE="$RESULTS_DIR/run-$TIMESTAMP.log"

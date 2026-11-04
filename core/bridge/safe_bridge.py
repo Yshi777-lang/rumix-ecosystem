@@ -1,4 +1,4 @@
-# ~/rumix/core/bridge/safe_bridge.py
+# ~/rumix-ecosystem/core/bridge/safe_bridge.py
 # Безопасный мост. Все действия проходят через Permission Gate.
 # Создано: 17.10.2026 (Тиамат + Зая)
 

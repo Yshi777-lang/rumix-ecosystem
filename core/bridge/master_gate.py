@@ -1,4 +1,4 @@
-# ~/rumix/core/bridge/master_gate.py
+# ~/rumix-ecosystem/core/bridge/master_gate.py
 # Единые врата дома. Проверяют всё: команды, файлы, действия.
 # Создано: 17.10.2026 (Тиамат + Зая)
 

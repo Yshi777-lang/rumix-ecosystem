@@ -28,7 +28,7 @@ class RumixForegroundService : Service() {
         // Запускаем Flask в фоне
         try {
             val python = ProcessBuilder("python3", "app.py")
-                .directory(java.io.File("/data/data/com.rumix/files/home/rumix/backend"))
+                .directory(java.io.File("/data/data/com.rumix/files/home/rumix-ecosystem/backend"))
                 .redirectErrorStream(true)
                 .start()
             process = python

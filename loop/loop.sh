@@ -3,15 +3,15 @@
 # File Queue. Watcher. Executor. Result Writer.
 #
 # Как работает:
-#   1. Смотрит на ~/rumix/loop/out/
+#   1. Смотрит на ~/rumix-ecosystem/loop/out/
 #   2. Каждый файл *.sh — выполняет
-#   3. Пишет результат в ~/rumix/loop/in/<name>.result
-#   4. Переносит выполненный в ~/rumix/loop/done/
+#   3. Пишет результат в ~/rumix-ecosystem/loop/in/<name>.result
+#   4. Переносит выполненный в ~/rumix-ecosystem/loop/done/
 #   5. Ждёт следующий
 #
-# Запуск: bash ~/rumix/loop/loop.sh
+# Запуск: bash ~/rumix-ecosystem/loop/loop.sh
 
-LOOP_DIR="$HOME/rumix/loop"
+LOOP_DIR="$HOME/rumix-ecosystem/loop"
 OUT_DIR="$LOOP_DIR/out"
 IN_DIR="$LOOP_DIR/in"
 DONE_DIR="$LOOP_DIR/done"
@@ -84,7 +84,7 @@ while true; do
 
             # Выполняем как bash-скрипт, ловим всё
             # ПРОВЕРКА ЧЕРЕЗ LOOP GATE
-            if ! bash ~/rumix/loop/loop-gate.sh "$file"; then
+            if ! bash ~/rumix-ecosystem/loop/loop-gate.sh "$file"; then
                 echo "Loop Gate: выполнение отклонено."
                 mv "$file" "$DONE_DIR/${name}.rejected"
                 continue

@@ -7,7 +7,7 @@
 
 set -e
 
-LOOP_DIR="$HOME/rumix/loop"
+LOOP_DIR="$HOME/rumix-ecosystem/loop"
 OUT_DIR="$LOOP_DIR/out"
 QUEUE="$LOOP_DIR/queue.txt"
 

@@ -10,7 +10,7 @@
 #
 # Проверки: exit=0 | exit!=0 | contains: <text> | match: <regex>
 
-LOOP_DIR="$HOME/rumix/loop"
+LOOP_DIR="$HOME/rumix-ecosystem/loop"
 OUT_DIR="$LOOP_DIR/out"
 IN_DIR="$LOOP_DIR/in"
 DONE_DIR="$LOOP_DIR/done"

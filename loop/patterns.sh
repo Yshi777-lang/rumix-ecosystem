@@ -3,7 +3,7 @@
 # Читает cache.jsonl. Считает. Показывает.
 # НЕ создаёт правил. Только наблюдает.
 
-CACHE="$HOME/rumix/loop/cache.jsonl"
+CACHE="$HOME/rumix-ecosystem/loop/cache.jsonl"
 
 if [ ! -f "$CACHE" ]; then
     echo "Нет $CACHE"

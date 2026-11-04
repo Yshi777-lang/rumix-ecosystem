@@ -44,14 +44,14 @@
 ## Точки входа
 
 ### Дом
-- `bash ~/rumix/scripts/rumix.sh` — меню (PIN).
+- `bash ~/rumix-ecosystem/scripts/rumix.sh` — меню (PIN).
 
 ### Проверки
-- `bash ~/rumix/scripts/check-rumix.sh` — статус.
-- `bash ~/rumix/scripts/check-config-drift.sh` — рассинхроны.
+- `bash ~/rumix-ecosystem/scripts/check-rumix.sh` — статус.
+- `bash ~/rumix-ecosystem/scripts/check-config-drift.sh` — рассинхроны.
 
 ### Regression
-- `bash ~/rumix/agents/tests/run.sh` — 15 PASS.
+- `bash ~/rumix-ecosystem/agents/tests/run.sh` — 15 PASS.
 
 ### Сервис
 - `export SVDIR=$PREFIX/var/service && sv status neon`.
@@ -63,7 +63,7 @@
 
 ## Что делать при config drift
 
-1. Запустить `bash ~/rumix/scripts/check-config-drift.sh`.
+1. Запустить `bash ~/rumix-ecosystem/scripts/check-config-drift.sh`.
 2. Если ошибка — исправить все связанные файлы.
 3. Проверить `~/Work/notes/CONFIG_DRIFT.md` — там карта.
 4. Закоммитить.

@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # test_04 — network_status + netlink (UNAVAILABLE) + allow_partial → status=partial
 
-cd "$HOME/rumix/agents" || exit 1
+cd "$HOME/rumix-ecosystem/agents" || exit 1
 
 python3 -c "
 import sys; sys.path.insert(0, '.')

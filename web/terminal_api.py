@@ -1,4 +1,4 @@
-# ~/rumix/web/terminal_api.py
+# ~/rumix-ecosystem/web/terminal_api.py
 # API для веб-терминала. Пока — базовая версия.
 # Создано: 17.10.2026 (Тиамат + Зая)
 

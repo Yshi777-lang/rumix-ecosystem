@@ -4,7 +4,7 @@ with open('scripts/rumix.sh', 'r') as f:
 old = 'case "$choice" in'
 new = '''case "$choice" in
         "🌊 Оболочка (запуск всего)")
-            bash "$HOME/rumix/scripts/launch-all.sh"
+            bash "$HOME/rumix-ecosystem/scripts/launch-all.sh"
             echo ""
             read -p "Нажми Enter..."
             ;;'''

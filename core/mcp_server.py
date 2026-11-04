@@ -51,7 +51,7 @@ class McpServer:
 
     def _memory_search(self, query: str) -> str:
         import sys
-        sys.path.insert(0, os.path.expanduser('~/rumix/scripts'))
+        sys.path.insert(0, os.path.expanduser('~/rumix-ecosystem/scripts'))
         try:
             from memory import search
             results = search(query, top_k=3)
