@@ -711,3 +711,8 @@ EOF
 - Создан `svc-manager.sh` для управления Shell, Неоном и Scanner по отдельности.
 - `start shell`, `start neon`, `start scanner`, `stop all`, `status`.
 - **Значение:** Дом модульный в запуске. Можно поднять только нужное. Без OOM и зависаний.
+
+## Победа 204: launch-all делегирует svc-manager (04.11.2026)
+- `launch-all.sh` больше не запускает Shell и Scanner напрямую.
+- Он вызывает `svc-manager.sh start shell` и `start scanner`.
+- **Значение:** Единый центр управления процессами. Если Shell упадёт, диспетчер знает. Если Scanner нет — он честно скажет. Баланс.

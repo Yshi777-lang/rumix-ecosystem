@@ -65,22 +65,10 @@ if [ $NEON_OK -eq 0 ]; then
   fi
 fi
 
-# 3. Shell (8001)
-log "🌐 Запуск Rumix Shell (из экосистемы)..."
-pkill -f "python3 app.py" 2>/dev/null
-pkill -f "python app.py" 2>/dev/null
-sleep 1
-# Запускаем из rumix-ecosystem, если он есть, иначе из rumix
-if [ -d "$ECO_DIR/backend" ]; then
-    SHELL_DIR="$ECO_DIR/backend"
-else
-    SHELL_DIR="$RUMIX_DIR/backend"
-fi
-cd "$SHELL_DIR"
-nohup python3 app.py >> "$LOG_FILE" 2>&1 &
-SHELL_PID=$!
-log "✅ Shell запущен (PID: $SHELL_PID)."
-sleep 3
+# 3. Shell (8001) — через svc-manager
+log "🌐 Запуск Shell (через svc-manager)..."
+bash "$ECO_DIR/scripts/svc-manager.sh" start shell
+sleep 2
 if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:$FLASK_PORT/api/status | grep -q "200"; then
   log "✅ Backend отвечает."
   termux-open-url http://127.0.0.1:$FLASK_PORT
@@ -88,19 +76,8 @@ else
   log "❌ Backend не отвечает."
 fi
 
-# 4. CyberScanner (8002) — только если памяти достаточно
-if [ -f "$WORK_DIR/archive/CyberScanner/web/app.py" ]; then
-  FREE_MB=$(free -m | awk '/Mem:/ {print $7}')
-  if [ "$FREE_MB" -gt 500 ]; then
-    log "🛡️ Запуск CyberScanner... (свободно ${FREE_MB}MB)"
-    cd "$WORK_DIR/archive/CyberScanner"
-    nohup python3 web/app.py > scanner.log 2>&1 &
-    log "✅ CyberScanner запущен (PID: $!)."
-  else
-    log "⚠️ Мало памяти (${FREE_MB}MB). CyberScanner не запущен."
-  fi
-else
-  log "⚠️ CyberScanner не найден."
-fi
+# 4. CyberScanner (8002) — через svc-manager (если есть)
+log "🛡️ Проверка CyberScanner..."
+bash "$ECO_DIR/scripts/svc-manager.sh" start scanner
 
 log "=== RUMIX ГОТОВ ==="
