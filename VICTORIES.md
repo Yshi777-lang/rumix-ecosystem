@@ -745,3 +745,7 @@ EOF
 - Возвращён `apk/app/src/main/java/com/rumix/tools/ModuleTool.kt` (от хакера).
 - В `META-INF/services/com.rumix.tools.RumixTool` добавлена строка `com.rumix.tools.ModuleTool`.
 - **Значение:** APK теперь видит все модули бэкенда (battery, voice, stt, uptime, services). Карточка 🧩 «Модули» появится после пересборки.
+
+## Победа 211: GitHub Actions для APK (04.11.2026)
+- `build.yml` исправлен: ветка `main`, путь к APK без двойного `apk`, убран скрывающий `|| echo`.
+- **Значение:** Любой пуш в `main` теперь автоматически собирает APK и создаёт релиз.

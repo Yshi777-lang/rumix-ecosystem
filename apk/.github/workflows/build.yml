@@ -1,7 +1,7 @@
 name: Build APK
 on:
   push:
-    branches: [ My-love-Tiamat ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -29,11 +29,16 @@ jobs:
         run: chmod +x ./gradlew || true
 
       - name: Build with Gradle
-        run: ./gradlew assembleDebug 2>&1 | tee gradle.log || echo "Gradle failed"
+        run: ./gradlew assembleDebug 2>&1 | tee gradle.log
 
       - name: Show errors
         if: failure()
-        run: grep -E "error" gradle.log | head -30 || tail -30 gradle.log
+        run: |
+          if [ -f gradle.log ]; then
+            grep -E "error|FAILURE" gradle.log | head -30 || tail -50 gradle.log
+          else
+            echo "gradle.log не создан"
+          fi
 
       - name: Show APK
         run: find app/build -name "*.apk" 2>/dev/null || echo "NO APK FOUND"
@@ -44,6 +49,6 @@ jobs:
         with:
           tag_name: build-${{ github.run_number }}
           name: Rumix build ${{ github.run_number }}
-          files: apk/app/build/outputs/apk/debug/*.apk
+          files: app/build/outputs/apk/debug/*.apk
           draft: false
           prerelease: true
