@@ -173,7 +173,7 @@ def status():
 @app.route('/api/logs')
 def logs():
     import os
-    log_path = os.path.expanduser('~/rumix/logs/shell.log')
+    log_path = os.path.expanduser('~/rumix-ecosystem/logs/shell.log')
     try:
         with open(log_path, 'r', encoding='utf-8', errors='replace') as f:
             lines = f.readlines()
@@ -470,7 +470,7 @@ def action():
     import subprocess, os
     data = request.json or {}
     action_name = data.get('action', '')
-    scripts_dir = os.path.expanduser('~/rumix/scripts')
+    scripts_dir = os.path.expanduser('~/rumix-ecosystem/scripts')
     allowed = {
         'audit':   ['bash', os.path.join(scripts_dir, 'check-rumix.sh')],
         'backup':  ['bash', os.path.join(scripts_dir, 'backup.sh')],
@@ -586,7 +586,7 @@ BRIDGE_TASKS = {}
 @app.route('/api/bridge/health')
 def bridge_health():
     import os
-    loop_dir = os.path.expanduser('~/rumix/loop')
+    loop_dir = os.path.expanduser('~/rumix-ecosystem/loop')
     state_file = os.path.join(loop_dir, 'state.json')
     state = 'unknown'
     try:
@@ -623,7 +623,7 @@ def bridge_task_create():
     # Генерируем ID
     task_id = f'bridge-{_uuid.uuid4().hex[:8]}'
 
-    loop_submit = os.path.expanduser('~/rumix/loop/loop-submit.sh')
+    loop_submit = os.path.expanduser('~/rumix-ecosystem/loop/loop-submit.sh')
     try:
         r = subprocess.run(
             [loop_submit, task_id],
@@ -643,7 +643,7 @@ def bridge_task_get(task_id):
     import os, re
     if not re.match(r'^[a-zA-Z0-9_-]+$', task_id):
         return jsonify({'ok': False, 'error': 'bad id'}), 400
-    in_file = os.path.expanduser(f'~/rumix/loop/in/{task_id}.result')
+    in_file = os.path.expanduser(f'~/rumix-ecosystem/loop/in/{task_id}.result')
     if not os.path.exists(in_file):
         return jsonify({'ok': False, 'status': 'pending'})
     try:
@@ -723,7 +723,7 @@ register_terminal_ws(socketio)  # v2: session-check, per-session PTY, emit(to=si
 def sync_control():
     data = request.json or {}
     action = data.get('action', 'status')
-    script = os.path.expanduser('~/rumix/scripts/sync-control.sh')
+    script = os.path.expanduser('~/rumix-ecosystem/scripts/sync-control.sh')
     
     try:
         result = subprocess.run(
@@ -783,6 +783,21 @@ def hh_settings_save():
         return jsonify({'ok': True, 'message': 'Сохранено.'})
     except Exception as e:
         return jsonify({'ok': False, 'error': str(e)}), 500
+
+
+
+@app.route('/api/integrity', methods=['POST'])
+def api_integrity():
+    import subprocess
+    from pathlib import Path
+    try:
+        script = Path.home() / 'rumix-ecosystem' / 'scripts' / 'integrity-check.sh'
+        if not script.exists():
+            return jsonify({'ok': False, 'output': 'integrity-check.sh не найден'})
+        result = subprocess.run(['bash', str(script)], capture_output=True, text=True, timeout=30)
+        return jsonify({'ok': True, 'output': result.stdout + result.stderr})
+    except Exception as e:
+        return jsonify({'ok': False, 'output': str(e)})
 
 
 if __name__ == '__main__':

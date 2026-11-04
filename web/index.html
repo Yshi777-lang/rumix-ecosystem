@@ -68,6 +68,7 @@
                 <button onclick="wakeNeon()">🤖 Разбудить</button>
             <button onclick="window.open('/map', '_blank')">Карта</button>
             <button onclick="runAction('audit')">Аудит</button>
+                <button onclick="runIntegrity()">🔬 Целостность</button>
                 <button onclick="window.open('/fury', '_blank')">Фурия</button>
             <button onclick="runAction('backup')">Бэкап</button>
             <button onclick="window.open('/stop', '_blank')">Остановить</button>
@@ -194,6 +195,28 @@
             }
         }
         fetchStatus();
-    </script>
+    
+        async function runIntegrity() {
+            const modal = document.getElementById('action-modal');
+            const title = document.getElementById('action-title');
+            const output = document.getElementById('action-output');
+            if(!modal) { alert('Модалка не найдена'); return; }
+            
+            title.innerText = '⏳ Проверка целостности...';
+            output.innerText = 'Сканирую дом...';
+            modal.style.display = 'flex';
+
+            try {
+                const r = await fetch('/api/integrity', {method: 'POST'});
+                const d = await r.json();
+                title.innerText = d.ok ? '✅ Дом цел' : '⚠️ Найдены проблемы';
+                output.innerText = d.output || 'Нет вывода';
+            } catch (e) {
+                title.innerText = '❌ Ошибка';
+                output.innerText = 'Ошибка связи: ' + e.message;
+            }
+        }
+
+</script>
 </body>
 </html>
