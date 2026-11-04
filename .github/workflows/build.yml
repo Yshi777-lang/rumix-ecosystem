@@ -23,7 +23,13 @@ jobs:
       - name: Accept Android SDK licenses
         run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
-      - name: Build with Gradle (system)
+      - name: Setup Gradle 8.2
+        run: |
+          wget https://services.gradle.org/distributions/gradle-8.2-bin.zip
+          unzip -q gradle-8.2-bin.zip
+          echo "$PWD/gradle-8.2/bin" >> $GITHUB_PATH
+
+      - name: Build with Gradle 8.2
         run: |
           cd apk
           gradle assembleDebug
@@ -32,10 +38,7 @@ jobs:
         run: |
           echo "=== Searching for APK ==="
           find . -name "*.apk" -type f
-          
-          # Копируем найденный APK в корень для удобства
           find . -name "*.apk" -type f -exec cp {} ./app-debug.apk \;
-          
           if [ -f ./app-debug.apk ]; then
             echo "✅ APK found and copied to root!"
             ls -lh ./app-debug.apk
