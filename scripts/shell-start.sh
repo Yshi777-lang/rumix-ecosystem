@@ -1,4 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
+# 🛡️ EditorTrue Fusion: Активация режима выживания
+termux-wake-lock
 # shell-start.sh — запуск Rumix Shell.
 # Делегирует svc-manager.sh: адресация по имени сервиса (runit или PID-файл),
 # а не `pkill -f "python3 app.py"`, который заодно убивал CyberScanner и чужой Flask.
