@@ -6,6 +6,7 @@ import org.json.JSONObject
 import java.io.BufferedReader
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 
 enum class HealthState { ONLINE, DEGRADED, OFFLINE, CHECKING }
 
@@ -18,6 +19,14 @@ object RumixClient {
 
     val baseUrl: String get() = "http://$host:$port"
 
+    /** Токен установки (~/.rumix_token на стороне Shell). Пусто = старый режим без токена. */
+    var token: String = ""
+
+    /** Стартовый адрес Shell: токен один раз в query → сервер ставит cookie для WebView. */
+    val shellUrl: String
+        get() = if (token.isBlank()) "$baseUrl/"
+        else "$baseUrl/?t=" + URLEncoder.encode(token, "UTF-8")
+
     data class Http(val code: Int, val body: String)
 
     private fun open(url: String, method: String, body: String?, readTimeout: Int): HttpURLConnection {
@@ -26,6 +35,7 @@ object RumixClient {
         conn.connectTimeout = 3_000
         conn.readTimeout = readTimeout
         conn.setRequestProperty("Accept", "application/json")
+        if (token.isNotBlank()) conn.setRequestProperty("X-Rumix-Token", token)
         if (body != null) {
             conn.doOutput = true
             conn.setRequestProperty("Content-Type", "application/json; charset=utf-8")
@@ -63,7 +73,12 @@ object RumixClient {
             val conn = open("$baseUrl/api/agent/status", "GET", null, 2_500)
             val code = conn.responseCode
             conn.disconnect()
-            if (code in 200..399) HealthState.ONLINE else HealthState.DEGRADED
+            if (code !in 200..399) return@withContext HealthState.DEGRADED
+
+            val probe = open("$baseUrl/api/modules", "GET", null, 2_500)
+            val probeCode = probe.responseCode
+            probe.disconnect()
+            if (probeCode == 401) HealthState.DEGRADED else HealthState.ONLINE
         } catch (_: Exception) {
             HealthState.OFFLINE
         }

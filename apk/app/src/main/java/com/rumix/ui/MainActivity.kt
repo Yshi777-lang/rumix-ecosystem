@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -112,21 +113,35 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showBackendDialog() {
-        val input = EditText(this).apply {
+        val address = EditText(this).apply {
             hint = "host:port"
             setText("${RumixClient.host}:${RumixClient.port}")
             setTextColor(ContextCompat.getColor(context, R.color.rumix_text))
             setHintTextColor(ContextCompat.getColor(context, R.color.rumix_text_dim))
         }
+        val tokenInput = EditText(this).apply {
+            hint = "токен: cat ~/.rumix_token в Termux"
+            setText(RumixClient.token)
+            setTextColor(ContextCompat.getColor(context, R.color.rumix_text))
+            setHintTextColor(ContextCompat.getColor(context, R.color.rumix_text_dim))
+        }
+        val box = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 24, 48, 0)
+            addView(address)
+            addView(tokenInput)
+        }
         AlertDialog.Builder(this)
-            .setTitle("Адрес бэкенда")
-            .setView(input)
+            .setTitle("Бэкенд и токен")
+            .setView(box)
             .setPositiveButton(R.string.ok) { _, _ ->
-                val parts = (input.text?.toString() ?: "").trim().split(":")
+                val parts = (address.text?.toString() ?: "").trim().split(":")
                 if (parts.size == 2 && parts[0].isNotBlank()) {
                     val port = parts[1].toIntOrNull() ?: RumixClient.DEFAULT_PORT
-                    (application as RumixApp).saveBackend(parts[0], port)
-                    Toast.makeText(this, "→ http://${parts[0]}:$port", Toast.LENGTH_SHORT).show()
+                    val token = tokenInput.text?.toString() ?: ""
+                    (application as RumixApp).saveBackend(parts[0], port, token)
+                    val note = if (token.isBlank()) " (без токена: только статус)" else ""
+                    Toast.makeText(this, "→ http://${parts[0]}:$port$note", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Формат: host:port", Toast.LENGTH_SHORT).show()
                 }

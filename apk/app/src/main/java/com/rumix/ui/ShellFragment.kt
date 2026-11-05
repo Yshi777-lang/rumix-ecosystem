@@ -62,7 +62,7 @@ class ShellFragment : Fragment() {
                 loaded = true
                 binding.offlinePanel.visibility = View.GONE
                 binding.webview.visibility = View.VISIBLE
-                binding.webview.loadUrl(RumixClient.baseUrl + "/")
+                binding.webview.loadUrl(RumixClient.shellUrl)
             }
         }
     }

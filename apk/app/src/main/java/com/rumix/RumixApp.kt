@@ -23,6 +23,7 @@ class RumixApp : Application() {
         val prefs = getSharedPreferences("rumix", MODE_PRIVATE)
         RumixClient.host = prefs.getString("backend_host", RumixClient.DEFAULT_HOST) ?: RumixClient.DEFAULT_HOST
         RumixClient.port = prefs.getInt("backend_port", RumixClient.DEFAULT_PORT)
+        RumixClient.token = prefs.getString("backend_token", "") ?: ""
 
         try {
             ToolRegistry.loadFromServiceLoader(classLoader)
@@ -40,12 +41,14 @@ class RumixApp : Application() {
         )
     }
 
-    fun saveBackend(host: String, port: Int) {
+    fun saveBackend(host: String, port: Int, token: String = RumixClient.token) {
         RumixClient.host = host
         RumixClient.port = port
+        RumixClient.token = token.trim()
         getSharedPreferences("rumix", MODE_PRIVATE).edit()
             .putString("backend_host", host)
             .putInt("backend_port", port)
+            .putString("backend_token", RumixClient.token)
             .apply()
     }
 
