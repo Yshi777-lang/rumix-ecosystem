@@ -1,37 +1,18 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# stop-all.sh — остановка дома
+# stop-all.sh — остановка дома.
+# Остановка идёт по именам сервисов через svc-manager (без pkill).
+
+ECO_DIR="${RUMIX_ECO_DIR:-$HOME/rumix-ecosystem}"
+SVC="$ECO_DIR/scripts/svc-manager.sh"
 
 echo "🛑 Остановка Rumix..."
 
-# Shell (Flask)
-if pkill -f "python.*app.py" 2>/dev/null; then
-    echo "  ✅ Shell остановлен"
-else
-    echo "  ⚠️ Shell не был запущен"
+if [ ! -f "$SVC" ]; then
+    echo "  ❌ не найден $SVC"
+    exit 1
 fi
 
-# CyberScanner
-if pkill -f "CyberScanner.*web/app.py" 2>/dev/null; then
-    echo "  ✅ CyberScanner остановлен"
-else
-    echo "  ⚠️ Сканер не был запущен"
-fi
-
-# Неон (через sv, если есть, или напрямую)
-NEON_KILLED=0
-if command -v sv &> /dev/null; then
-    export SVDIR=$PREFIX/var/service
-    if sv down neon 2>/dev/null; then NEON_KILLED=1; fi
-fi
-
-if [ "$NEON_KILLED" -eq 0 ]; then
-    if pkill -f "llama-server" 2>/dev/null; then
-        echo "  ✅ Неон остановлен (напрямую)"
-    else
-        echo "  ⚠️ Неон не был запущен"
-    fi
-else
-    echo "  ✅ Неон остановлен (через sv)"
-fi
+bash "$SVC" stop all
+command -v termux-wake-unlock >/dev/null 2>&1 && termux-wake-unlock
 
 echo "🏁 Дом спит."
