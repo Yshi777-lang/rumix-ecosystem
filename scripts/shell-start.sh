@@ -1,41 +1,35 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# shell-start.sh — запуск Rumix Shell
-# Исправлено: 21.10.2026 (задержка + повторные проверки)
+# shell-start.sh — запуск Rumix Shell.
+# Делегирует svc-manager.sh: адресация по имени сервиса (runit или PID-файл),
+# а не `pkill -f "python3 app.py"`, который заодно убивал CyberScanner и чужой Flask.
 
 echo "🌊 Rumix Shell — запуск..."
-ECO_DIR="$HOME/rumix-ecosystem"
+ECO_DIR="${RUMIX_ECO_DIR:-$HOME/rumix-ecosystem}"
+SVC="$ECO_DIR/scripts/svc-manager.sh"
 
-# Убиваем старый процесс
-pkill -f "python3 app.py" 2>/dev/null
-sleep 1
-
-# Переходим в папку бэкенда
-# Запускаем из rumix-ecosystem, если он есть, иначе из rumix
-if [ -d "$ECO_DIR/backend" ]; then
-    cd "$ECO_DIR/backend" || exit 1
-else
-    cd ~/rumix-ecosystem/backend || exit 1
+if [ ! -f "$SVC" ]; then
+    echo "❌ Не найден $SVC"
+    exit 1
 fi
 
-# Запускаем Flask в фоне
-python3 app.py > ~/rumix/logs/shell.log 2>&1 &
-PID=$!
-echo "   Backend PID: $PID"
+# Перезапуск: стоп по имени сервиса, затем старт.
+bash "$SVC" stop shell >/dev/null 2>&1
 
-# Ждём до 10 секунд (5 попыток по 2 сек)
-OK=0
-for i in 1 2 3 4 5; do
-    sleep 2
-    if curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/api/status | grep -q "200"; then
-        OK=1
-        break
-    fi
-done
-
-if [ $OK -eq 1 ]; then
-    echo "   ✅ Backend отвечает"
-    echo "   🌐 Открываю http://127.0.0.1:8001"
-    termux-open-url http://127.0.0.1:8001
-else
-    echo "   ❌ Backend не отвечает. Смотри логи: ~/rumix/logs/shell.log"
+if ! bash "$SVC" start shell; then
+    echo "   ❌ Shell не поднялся. Логи: $ECO_DIR/logs/shell.log"
+    exit 1
 fi
+
+# Токен установки: без него /api/* отвечает 401. Он же нужен APK.
+TOKEN=$(cat "$HOME/.rumix_token" 2>/dev/null)
+URL="http://127.0.0.1:8001/"
+[ -n "$TOKEN" ] && URL="http://127.0.0.1:8001/?t=$TOKEN"
+
+echo "   🌐 $URL"
+if [ -n "$TOKEN" ]; then
+    echo "   🔑 токен для APK: $TOKEN"
+else
+    echo "   ⚠️ токен не найден (~/.rumix_token) — API будет отвечать 401"
+fi
+
+command -v termux-open-url >/dev/null 2>&1 && termux-open-url "$URL"

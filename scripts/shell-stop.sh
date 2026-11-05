@@ -1,12 +1,13 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# shell-stop.sh — остановка Rumix Shell
+# shell-stop.sh — остановка Rumix Shell.
+# Останавливаем только Shell: `pkill -f "python.*app.py"` задевал ещё и CyberScanner.
 
-KILLED=0
-if pkill -f "python3 app.py" 2>/dev/null; then KILLED=1; fi
-if pkill -f "python app.py" 2>/dev/null; then KILLED=1; fi
+ECO_DIR="${RUMIX_ECO_DIR:-$HOME/rumix-ecosystem}"
+SVC="$ECO_DIR/scripts/svc-manager.sh"
 
-if [ "$KILLED" -eq 1 ]; then
-    echo "✅ Rumix Shell остановлен."
-else
-    echo "⚠️ Rumix Shell не был запущен."
+if [ ! -f "$SVC" ]; then
+    echo "❌ не найден $SVC"
+    exit 1
 fi
+
+bash "$SVC" stop shell
