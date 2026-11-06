@@ -1,4 +1,4 @@
-name: Build APK
+name: Build Rumix APK
 on:
   push:
     branches: [ main ]
@@ -9,7 +9,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -20,28 +19,29 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Accept Android SDK licenses
-        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
 
-      - name: Build with Gradle
+      - name: Build APK
         run: |
           cd apk
-          chmod +x gradlew
-          ./gradlew clean assembleDebug
+          chmod +x gradlew || echo "gradlew not found, using system gradle"
+          # Если gradlew нет, GitHub Action сам его сгенерирует или используем системный
+          gradle wrapper || true
+          ./gradlew assembleDebug
 
-      - name: Prepare APK for upload
+      - name: Prepare Artifact
         run: |
-          echo "=== Ищем собранный APK ==="
+          echo "=== Ищем APK ==="
           find apk/app/build/outputs/apk/ -name "*.apk" -type f
-          cp apk/app/build/outputs/apk/debug/app-debug.apk ./rumix-debug.apk
-          echo "✅ APK найден и скопирован в корень:"
-          ls -lh ./rumix-debug.apk
+          cp apk/app/build/outputs/apk/debug/app-debug.apk ./rumix-reborn-debug.apk
+          ls -lh ./rumix-reborn-debug.apk
 
-      - name: Upload APK artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: rumix-apk
-          path: rumix-debug.apk
+          name: rumix-reborn-apk
+          path: rumix-reborn-debug.apk
           retention-days: 7
 
       - name: Create Release
@@ -49,7 +49,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: Rumix build ${{ github.run_number }}
-          files: rumix-debug.apk
+          name: Rumix Reborn Build ${{ github.run_number }}
+          files: rumix-reborn-debug.apk
           draft: false
           prerelease: true
