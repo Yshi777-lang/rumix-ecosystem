@@ -1,20 +1,23 @@
 #!/data/data/com.termux/files/usr/bin/bash
-# rumix.sh — главное меню дома 🧬
+# rumix.sh — главное меню дома 🧬 (Native Bash Edition)
 
-# Проверка PIN (если установлен)
+# Проверка PIN
 if [ -f "$HOME/rumix-ecosystem/scripts/rumix-pin.sh" ]; then
     if ! bash "$HOME/rumix-ecosystem/scripts/rumix-pin.sh" check; then
         exit 1
     fi
 fi
 
+cd "$HOME/rumix-ecosystem" || exit 1
+
 while true; do
     clear
-    gum style --border double --padding "1 2" --border-foreground 93 "🧬 RUMIX — НЕОНОВЫЙ ШЁПОТ"
-
-    # Метрики устройства (быстро, без LLM)
+    echo "================================================="
+    echo "           🧬 RUMIX — НЕОНОВЫЙ ШЁПОТ           "
+    echo "================================================="
+    
     STORAGE=$(df -h ~ 2>/dev/null | awk 'NR==2 {print $4}')
-    RAM_AVAIL=$(free -m 2>/dev/null | awk 'NR==2 {print $7}')  # available, не free
+    RAM_AVAIL=$(free -m 2>/dev/null | awk 'NR==2 {print $7}')
     BATTERY=$(termux-battery-status 2>/dev/null | grep percentage | awk -F': ' '{print $2}' | tr -d ',')
     if ping -c 1 -W 1 8.8.8.8 >/dev/null 2>&1; then
         NET="Online"
@@ -25,96 +28,22 @@ while true; do
     echo "  💾 ${STORAGE:-?}   🧠 ${RAM_AVAIL:-?} MB   🔋 ${BATTERY:-?}%   🌐 ${NET}"
     echo ""
 
-    choice=$(gum choose --height 20 \
-        "🌊 Оболочка (запуск всего)" \
-        "🔄 Синхронизация (GitHub)" \
-        "💻 Terminal (zsh)" \
-        "🤖 AI: Неон (меню)" \
-        "🤖 Agent Runtime" \
-        "🦊 AI: Фурия (меню)" \
-        "📦 Установить Неона" \
-        "🌿 Git: Work" \
-        "🌊 Rumix Shell" \
-        "🛡️ CyberScanner" \
-        "📁 Проекты" \
-        "🗂  Файлы" \
-        "🐙 GitHub" \
-        "⚙️  Настройки и память" \
-        "📊 Статус (жив ли дом)" \
-        "🗺️  Карта дома" \
-        "📖 Инструкция" \
-        "🛑 Остановить всё" \
-        "🚪 Выход")
-
-    case "$choice" in
-        "🔄 Синхронизация (GitHub)")
-            bash "$HOME/rumix-ecosystem/scripts/sync-menu.sh"
-            echo ""
-            read -p "Нажми Enter..."
-            ;;
-        "🌊 Оболочка (запуск всего)")
-            bash "$HOME/rumix-ecosystem/scripts/launch-all.sh"
-            echo ""
-            read -p "Нажми Enter..."
-            ;;
-        "💻 Terminal (zsh)")
-            exec zsh
-            ;;
-        "🤖 AI: Неон (меню)")
-            bash "$HOME/rumix-ecosystem/scripts/neon-menu.sh"
-            ;;
-        "🤖 Agent Runtime")
-            bash "$HOME/rumix-ecosystem/scripts/agents-menu.sh"
-            ;;
-        "🦊 AI: Фурия (меню)")
-            bash "$HOME/rumix-ecosystem/scripts/fury-menu.sh"
-            ;;
-        "📦 Установить Неона")
-            bash "$HOME/rumix-ecosystem/scripts/install-neon.sh"
-            read -p "Enter..."
-            ;;
-        "🌿 Git: Work")
-            cd ~/Work && git status
-            exec zsh
-            ;;
-        "🌊 Rumix Shell")
-            bash "$HOME/rumix-ecosystem/scripts/shell-start.sh"
-            read -p "Enter..."
-            ;;
-        "🛡️ CyberScanner")
-            termux-open-url "http://127.0.0.1:8002"
-            read -p "Enter..."
-            ;;
-        "📁 Проекты")
-            bash "$HOME/rumix-ecosystem/scripts/projects-menu.sh"
-            ;;
-        "🗂  Файлы")
-            bash "$HOME/rumix-ecosystem/scripts/files-menu.sh"
-            ;;
-        "🐙 GitHub")
-            bash "$HOME/rumix-ecosystem/scripts/github-menu.sh"
-            ;;
-        "⚙️  Настройки и память")
-            bash "$HOME/rumix-ecosystem/scripts/settings-menu.sh"
-            ;;
-        "📊 Статус (жив ли дом)")
-            bash "$HOME/rumix-ecosystem/scripts/status.sh"
-            read -p "Enter..."
-            ;;
-        "🗺️  Карта дома")
-            bash "$HOME/rumix-ecosystem/scripts/show-map.sh"
-            ;;
-        "📖 Инструкция")
-            clear
-            less "$HOME/Work/blocks/cards/rumix-first-time.md"
-            ;;
-        "🛑 Остановить всё")
-            bash "$HOME/rumix-ecosystem/scripts/stop-all.sh"
-            read -p "Enter..."
-            ;;
-        "🚪 Выход")
-            echo "🧬 До встречи, Мыслитель."
-            exit 0
-            ;;
-    esac
+    PS3="👉 Введи номер действия: "
+    options=("🌊 Оболочка (запуск всего)" "🔄 Синхронизация" "🛡️ Фурия (аудит)" "🗺️ Карта дома" "📁 Проекты" "🛠️ Prompt Forge" "💬 Чат с Неоном" "🔐 GitHub" "🚪 Выход")
+    select choice in "${options[@]}"; do
+        case $choice in
+            "🌊 Оболочка (запуск всего)") bash scripts/launch-all.sh; break ;;
+            "🔄 Синхронизация") bash scripts/sync-control.sh; break ;;
+            "🛡️ Фурия (аудит)") bash scripts/fury-light.sh; break ;;
+            "🗺️ Карта дома") cat RUMIX_MAP.md | less; break ;;
+            "📁 Проекты") bash scripts/projects-menu.sh; break ;;
+            "🛠️ Prompt Forge") bash scripts/forge-manager.sh start; bash scripts/forge-manager.sh status; read -p "Нажми Enter, чтобы вернуться..." ; break ;;
+            "💬 Чат с Неоном") bash scripts/neon-chat.sh; read -p "Нажми Enter, чтобы вернуться..." ; break ;;
+            "🔐 GitHub") bash scripts/github-auth.sh; read -p "Нажми Enter, чтобы вернуться..." ; break ;;
+            "🚪 Выход") echo "До встречи, Зая!"; exit 0 ;;
+            *) echo "⚠️ Неверный выбор. Попробуй снова." ;;
+        esac
     done
+    echo "Нажми Enter, чтобы продолжить..."
+    read -r
+done

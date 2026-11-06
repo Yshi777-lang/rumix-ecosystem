@@ -106,7 +106,7 @@ start_scanner() {
     if [ -z "$dir" ]; then log "⚠️ CyberScanner не найден."; return 1; fi
     ( cd "$dir" || exit 1
       nohup python3 web/app.py >> "$LOG_DIR/scanner.log" 2>&1 &
-      echo $! > "$(pidfile scanner)" )
+    scanner)" )
     log "✅ CyberScanner запущен."
 }
 
@@ -139,8 +139,20 @@ status() {
 }
 
 case "${1:-}" in
-    start) case "${2:-}" in shell) start_shell;; neon) start_neon;; scanner) start_scanner;; all) start_neon; start_shell; start_scanner;; esac ;;
-    stop) case "${2:-}" in shell) stop_shell;; neon) stop_neon;; scanner) stop_scanner;; all) stop_shell; stop_neon; stop_scanner;; esac ;;
+        echo "🔧 Запуск Forge (порт 5001)..."
+        cd "$ECO_DIR/forge" || exit 1
+        python3 app.py &
+        echo $! > "$DATA_DIR/run/forge.pid"
+        echo "✅ Forge запущен"
+        ;;
+    scanner) start_scanner;; all) start_neon; start_shell; start_scanner;; esac ;;
+        echo "🔧 Запуск Forge (порт 5001)..."
+        cd "$ECO_DIR/forge" || exit 1
+        python3 app.py &
+        echo $! > "$DATA_DIR/run/forge.pid"
+        echo "✅ Forge запущен"
+        ;;
+    scanner) stop_scanner;; all) stop_shell; stop_neon; stop_scanner;; esac ;;
     install) do_install ;;
     status) status ;;
     *) echo "Использование: $0 {start|stop|install|status} [shell|neon|scanner|all]" ;;

@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🛠️ Prompt Forge</title>
+<style>
+:root{--p:#9d4edd;--s:#1a1a2e;--t:#fff;--o:#4a4a6a}
+body{font-family:monospace;background:var(--s);color:var(--t);padding:15px}
+.box{background:rgba(0,0,0,0.3);border:1px solid var(--o);border-radius:8px;padding:15px;margin:10px 0}
+h1,h2{color:var(--p);text-align:center}
+input,textarea{width:100%;background:#000;color:var(--t);border:1px solid var(--o);padding:10px;border-radius:5px;font-family:monospace;margin-bottom:10px}
+textarea{min-height:120px}
+button{background:var(--p);color:var(--t);border:none;padding:10px 20px;border-radius:5px;cursor:pointer;margin:5px}
+button:hover{background:#b565f0}
+.item{background:rgba(0,0,0,0.3);padding:10px;margin:5px 0;border-left:3px solid var(--p);border-radius:3px}
+.ok{color:#06d6a0}.err{color:#ef476f}
+</style></head><body>
+<h1>🛠️ Prompt Forge</h1>
+<div class="box"><h2>📝 Создать промпт</h2>
+<input type="text" id="title" placeholder="Название...">
+<textarea id="content" placeholder="Текст промпта..."></textarea>
+<button onclick="validate()">🔍 Проверить</button>
+<button onclick="save()">💾 Сохранить</button>
+<div id="res" class="box" style="display:none"></div></div>
+<div class="box"><h2>📋 Сохранённые</h2>
+<button onclick="load()">🔄 Обновить</button>
+<div id="list"></div></div>
+<script>
+const API='/api/forge';
+function load(){fetch(API+'/prompts').then(r=>r.json()).then(d=>{const l=document.getElementById('list');l.innerHTML='';if(!d.length){l.innerHTML='<p>Пусто</p>';return}d.forEach(p=>{const div=document.createElement('div');div.className='item';div.innerHTML='<b>'+p.title+'</b> <span class="ok">['+p.status+']</span><br><small>'+p.created_at+'</small>';l.appendChild(div);});});}
+function validate(){const c=document.getElementById('content').value;if(!c.trim())return alert('Введи текст');fetch(API+'/validate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:c})}).then(r=>r.json()).then(d=>{const res=document.getElementById('res');res.style.display='block';res.innerHTML='';for(let k in d.checks)res.innerHTML+='<div class="'+(d.checks[k]?'ok':'err')+'">'+(d.checks[k]?'✅':'❌')+' '+k+'</div>';if(d.contradictions)d.contradictions.forEach(x=>res.innerHTML+='<div class="err">⚠️ '+x+'</div>');});}
+function save(){const t=document.getElementById('title').value,c=document.getElementById('content').value;if(!t.trim()||!c.trim())return alert('Заполни всё');fetch(API+'/prompts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:t,raw_content:c})}).then(r=>{if(r.ok){alert('Сохранено!');document.getElementById('title').value='';document.getElementById('content').value='';load();}else alert('Ошибка');});}
+load();
+</script></body></html>
